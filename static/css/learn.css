@@ -1,0 +1,216 @@
+/* Learning Hub Specific Styles */
+.learn-container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 10px 20px 60px 20px;
+}
+
+.learn-header {
+    margin-bottom: 24px;
+}
+
+.learn-title {
+    font-size: 32px;
+    font-weight: 800;
+    color: #1a1b2e;
+    margin: 0 0 6px 0;
+}
+
+.learn-subtitle {
+    font-size: 15px;
+    color: #6e6e8e;
+    margin: 0;
+}
+
+/* Category Filter Tabs */
+.category-tabs {
+    display: flex;
+    gap: 12px;
+    margin-bottom: 24px;
+    flex-wrap: wrap;
+}
+
+.tab-btn {
+    background: #ffffff;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 24px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #555570;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.02);
+    transition: all 0.2s ease;
+}
+
+.tab-btn.active {
+    background: #111528;
+    color: #ffffff;
+}
+
+.tab-btn:hover:not(.active) {
+    background: #f0f0f8;
+}
+
+/* Progress Tracker Card */
+.progress-card {
+    background: #ffffff;
+    border-radius: 20px;
+    padding: 18px 24px;
+    margin-bottom: 28px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+}
+
+.progress-info {
+    font-size: 13px;
+    font-weight: 600;
+    color: #6e6e8e;
+    margin-bottom: 12px;
+}
+
+.progress-track {
+    height: 8px;
+    background: #f0f1f7;
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.progress-fill {
+    height: 100%;
+    /* Matching exact pink-to-purple gradient line from the screenshots */
+    background: linear-gradient(90deg, #e91e63, #ab47bc, #7c4dff);
+    border-radius: 10px;
+    transition: width 0.4s ease;
+}
+
+/* Card Grid Layout */
+.cards-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+/* Individual Topic Cards */
+.topic-card {
+    /* Soft lavender backdrop */
+    background: #e9ecfd; 
+    border-radius: 24px;
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: transform 0.2s ease;
+}
+
+.topic-card.banking-card {
+    /* Warm peach background for Banking category */
+    background: #fde8e3;
+}
+
+.card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.topic-title {
+    font-size: 20px;
+    font-weight: 800;
+    color: #111528;
+    margin: 0 0 4px 0;
+}
+
+.topic-subtitle {
+    font-size: 13px;
+    color: #6e6e8e;
+    margin: 0;
+}
+
+.check-circle {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    background: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #10b981;
+    opacity: 0.5;
+}
+
+.check-circle.active {
+    opacity: 1;
+}
+
+.check-circle svg {
+    width: 16px;
+    height: 16px;
+    stroke-width: 3;
+}
+
+/* Inner White Detail Box */
+.card-inner-box {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 20px;
+}
+
+.concept-text {
+    font-size: 13px;
+    color: #4a4a68;
+    line-height: 1.5;
+    margin: 0 0 14px 0;
+}
+
+.real-life-tag {
+    font-size: 12px;
+    color: #555570;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: flex-start;
+    gap: 6px;
+}
+
+.sparkle {
+    color: #f59e0b;
+}
+
+/* Buttons inside Cards */
+.action-btn {
+    width: 100%;
+    padding: 12px;
+    border-radius: 12px;
+    border: none;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.mark-btn {
+    background: #111528;
+    color: #ffffff;
+}
+
+.mark-btn:hover {
+    background: #232840;
+}
+
+.learned-btn {
+    background: #e6f7f0;
+    color: #059669;
+}
+
+@media (max-width: 768px) {
+    .cards-grid {
+        grid-template-columns: 1fr;
+    }
+}

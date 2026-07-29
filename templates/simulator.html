@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Simulator{% endblock %}
+{% block content %}
+<p class="eyebrow">Zero-Risk Simulator</p>
+<h1 style="font-size:1.8rem; margin-bottom:6px;">Investment Playground</h1>
+<p class="muted" style="margin-bottom:28px;">Practice with virtual money — no real currency involved. Adjust the sliders and watch the chart update live.</p>
+
+<div class="grid grid-2">
+  <div class="card">
+    <div class="flex-between" style="margin-bottom:16px;">
+      <h3>Mode</h3>
+      <div>
+        <button class="btn btn-ghost" id="mode-sip" data-active="true">SIP (Monthly)</button>
+        <button class="btn btn-ghost" id="mode-lump">Fixed Deposit (Lumpsum)</button>
+      </div>
+    </div>
+
+    <div class="budget-slider-row">
+      <div class="row-head"><span id="amount-label">Monthly investment</span><strong id="amount-value">₹5,000</strong></div>
+      <input type="range" id="amount-slider" min="500" max="100000" step="500" value="5000">
+    </div>
+    <div class="budget-slider-row">
+      <div class="row-head"><span>Expected annual return</span><strong id="rate-value">12%</strong></div>
+      <input type="range" id="rate-slider" min="1" max="20" step="0.5" value="12">
+    </div>
+    <div class="budget-slider-row">
+      <div class="row-head"><span>Timeline</span><strong id="years-value">5 years</strong></div>
+      <input type="range" id="years-slider" min="1" max="10" step="1" value="5">
+    </div>
+
+    <div class="grid grid-2" style="margin-top:20px;">
+      <div class="card card-raised" style="text-align:center; padding:16px;">
+        <p class="muted" style="font-size:.75rem;">Total invested</p>
+        <p class="stat-num" style="font-size:1.4rem;" id="total-invested">₹0</p>
+      </div>
+      <div class="card card-raised" style="text-align:center; padding:16px;">
+        <p class="muted" style="font-size:.75rem;">Projected value</p>
+        <p class="stat-num" style="font-size:1.4rem; color:var(--mint);" id="final-value">₹0</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 style="margin-bottom:16px;">Growth over time</h3>
+    <canvas id="growth-chart" height="260"></canvas>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/simulator.js') }}"></script>
+{% endblock %}

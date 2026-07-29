@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}Create account{% endblock %}
+{% block content %}
+<div class="auth-wrap">
+  <div class="card auth-card">
+    <h1 class="auth-title">Create your account</h1>
+    <p class="auth-sub">No name, email, or phone number needed. We'll generate a private, anonymous ID for you.</p>
+    <form method="POST">
+      <div class="field">
+        <label for="nickname">Display nickname (optional, shown only to you)</label>
+        <input type="text" id="nickname" name="nickname" placeholder="e.g. RiverSaver" maxlength="40">
+      </div>
+      <div class="field">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" placeholder="At least 8 characters, 1 letter + 1 number" required minlength="8">
+      </div>
+      <button type="submit" class="btn btn-primary btn-block">Create anonymous account</button>
+    </form>
+    <p class="muted" style="margin-top:18px; font-size:.82rem;">
+      Already have an ID? <a href="{{ url_for('login') }}" style="color:var(--gold-soft); text-decoration:underline;">Sign in</a>
+    </p>
+  </div>
+</div>
+{% endblock %}

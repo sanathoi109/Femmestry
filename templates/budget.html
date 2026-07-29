@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+{% block title %}Budget Shield{% endblock %}
+{% block content %}
+<p class="eyebrow">Interactive Budgeting</p>
+<h1 style="font-size:1.8rem; margin-bottom:6px;">Needs · Wants · Savings</h1>
+<p class="muted" style="margin-bottom:28px;">Drag the sliders to allocate your income. Your Safety Shield updates in real time.</p>
+
+<div class="grid grid-2">
+  <div class="card">
+    <div class="budget-slider-row">
+      <div class="row-head"><span style="color:var(--rose);">Needs</span><strong id="needs-value">{{ budget.needs_pct if budget else 50 }}%</strong></div>
+      <input type="range" id="needs" min="0" max="100" value="{{ budget.needs_pct if budget else 50 }}">
+    </div>
+    <div class="budget-slider-row">
+      <div class="row-head"><span style="color:var(--gold);">Wants</span><strong id="wants-value">{{ budget.wants_pct if budget else 30 }}%</strong></div>
+      <input type="range" id="wants" min="0" max="100" value="{{ budget.wants_pct if budget else 30 }}">
+    </div>
+    <div class="budget-slider-row">
+      <div class="row-head"><span style="color:var(--mint);">Savings</span><strong id="savings-value">{{ budget.savings_pct if budget else 20 }}%</strong></div>
+      <input type="range" id="savings" min="0" max="100" value="{{ budget.savings_pct if budget else 20 }}">
+    </div>
+    <p class="muted" id="total-note" style="font-size:.8rem;"></p>
+    <button class="btn btn-primary btn-block" id="save-budget" style="margin-top:10px;">Save allocation</button>
+  </div>
+
+  <div class="card" style="text-align:center;">
+    <p class="eyebrow">Safety Shield</p>
+    <div class="shield-gauge" id="budget-shield"></div>
+    <p class="muted" id="shield-copy" style="font-size:.85rem; margin-top:12px;"></p>
+  </div>
+</div>
+
+<script src="{{ url_for('static', filename='js/gauge.js') }}"></script>
+<script src="{{ url_for('static', filename='js/budget-sliders.js') }}"></script>
+{% endblock %}
