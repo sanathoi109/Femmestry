@@ -50,13 +50,34 @@
             <input type="date" id="entryDate" required class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-3 py-3 text-xs font-medium outline-none focus:border-[#3D1E28]">
         </div>
 
-        <!-- Submit Button -->
-        <div class="md:col-span-12 pt-2">
+        <!-- Hidden File Input for Image Uploads -->
+        <input type="file" id="receiptFileInput" accept="image/*" class="hidden" onchange="handleReceiptUpload(event)">
+
+        <!-- Submit, Upload, & Live Camera Scan Buttons Row -->
+        <div class="md:col-span-12 pt-2 flex flex-wrap items-center gap-3">
             <button type="submit" class="bg-[#3D1E28] text-white hover:bg-[#2B1B22] px-6 py-3 rounded-2xl text-xs font-semibold transition shadow-sm">
                 Add entry
             </button>
+
+            <!-- File Upload Button -->
+            <button type="button" onclick="triggerReceiptScan()" class="bg-[#F5EFF2] text-[#3D1E28] hover:bg-[#EBE4E5] px-6 py-3 rounded-2xl text-xs font-semibold transition shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-file-arrow-up text-xs"></i>
+                <span>Upload Bill</span>
+            </button>
+
+            <!-- Real-Time Live Camera Scanner Button -->
+            <button type="button" onclick="openCameraModal()" id="btnScan" class="bg-[#8E79B4] text-white hover:bg-[#7B66A1] px-6 py-3 rounded-2xl text-xs font-semibold transition shadow-sm flex items-center gap-2">
+                <i class="fa-solid fa-camera text-xs"></i>
+                <span>AI Scan Bill</span>
+            </button>
         </div>
     </form>
+
+    <!-- AI Scan Loading / Feedback Banner -->
+    <div id="scanStatusBox" class="hidden mt-4 p-4 rounded-2xl bg-[#F5EFF2] border border-[#EBE4E5] text-xs font-medium text-[#3D1E28] flex items-center gap-3">
+        <i class="fa-solid fa-circle-notch fa-spin text-sm text-[#8E79B4]"></i>
+        <span id="scanStatusText">Scanning bill & categorizing with Groq AI...</span>
+    </div>
 </div>
 
 <!-- Transactions List Section -->
@@ -75,6 +96,35 @@
     <!-- Transaction List Container -->
     <div id="transactionList" class="divide-y divide-[#F0EAEB]">
         <!-- Rendered by JS -->
+    </div>
+</div>
+
+<!-- REAL-TIME CAMERA MODAL OVERLAY -->
+<div id="cameraModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl p-5 max-w-md w-full shadow-2xl flex flex-col max-h-[90vh] space-y-4">
+        
+        <!-- Modal Header -->
+        <div class="flex justify-between items-center shrink-0">
+            <h3 class="text-sm font-bold tracking-wider text-[#3D1E28] uppercase">Scan Bill with Camera</h3>
+            <button type="button" onclick="closeCameraModal()" class="text-[#A39296] hover:text-[#3D1E28] text-lg font-bold">&times;</button>
+        </div>
+
+        <!-- Live Camera Stream Frame -->
+        <div class="relative bg-black rounded-2xl overflow-hidden flex-1 min-h-0 flex items-center justify-center">
+            <video id="webcamVideo" autoplay playsinline class="w-full h-full object-cover max-h-[55vh]"></video>
+            <!-- Offscreen canvas used to grab image frame -->
+            <canvas id="snapshotCanvas" class="hidden"></canvas>
+        </div>
+
+        <!-- Capture & Cancel Action Row -->
+        <div class="flex gap-3 shrink-0 pt-1">
+            <button type="button" onclick="captureAndProcess()" class="flex-1 bg-[#3D1E28] text-white py-3 rounded-2xl text-xs font-semibold hover:bg-[#2B1B22] transition">
+                Capture & Process
+            </button>
+            <button type="button" onclick="closeCameraModal()" class="px-5 bg-[#F5EFF2] text-[#8C7A7E] py-3 rounded-2xl text-xs font-semibold hover:text-[#3D1E28] transition">
+                Cancel
+            </button>
+        </div>
     </div>
 </div>
 
@@ -101,6 +151,7 @@
 
     let currentType = 'EXPENSE';
     let currentFilter = 'ALL';
+    let mediaStream = null;
 
     // Default Initial Transactions
     const defaultTransactions = [
@@ -127,8 +178,10 @@
     };
 
     function initPage() {
-        // Set date input to today's date automatically
-        document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+        const dateEl = document.getElementById('entryDate');
+        if (dateEl) {
+            dateEl.value = new Date().toISOString().split('T')[0];
+        }
         
         populateCategories();
         updateSummaryAndStorage();
@@ -140,12 +193,14 @@
         const btnExp = document.getElementById('btnExpense');
         const btnInc = document.getElementById('btnIncome');
 
-        if (type === 'EXPENSE') {
-            btnExp.className = "px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white";
-            btnInc.className = "px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28]";
-        } else {
-            btnInc.className = "px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white";
-            btnExp.className = "px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28]";
+        if (btnExp && btnInc) {
+            if (type === 'EXPENSE') {
+                btnExp.className = "px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white";
+                btnInc.className = "px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28]";
+            } else {
+                btnInc.className = "px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white";
+                btnExp.className = "px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28]";
+            }
         }
 
         populateCategories();
@@ -153,16 +208,24 @@
 
     function populateCategories() {
         const catSelect = document.getElementById('entryCategory');
+        if (!catSelect) return;
         const list = currentType === 'EXPENSE' ? expenseCategories : incomeCategories;
         catSelect.innerHTML = list.map(c => `<option value="${c}">${c}</option>`).join('');
     }
 
     function addEntry(e) {
-        e.preventDefault();
-        const desc = document.getElementById('entryDesc').value.trim();
-        const amount = Math.abs(parseFloat(document.getElementById('entryAmount').value));
-        const category = document.getElementById('entryCategory').value;
-        const date = document.getElementById('entryDate').value;
+        if (e) e.preventDefault();
+        const descInput = document.getElementById('entryDesc');
+        const amountInput = document.getElementById('entryAmount');
+        const catSelect = document.getElementById('entryCategory');
+        const dateInput = document.getElementById('entryDate');
+
+        if (!descInput || !amountInput || !catSelect || !dateInput) return;
+
+        const desc = descInput.value.trim();
+        const amount = Math.abs(parseFloat(amountInput.value));
+        const category = catSelect.value;
+        const date = dateInput.value;
 
         if (!desc || isNaN(amount) || amount <= 0) return;
 
@@ -178,8 +241,8 @@
         transactions.unshift(newEntry);
 
         // Clear input text boxes
-        document.getElementById('entryDesc').value = '';
-        document.getElementById('entryAmount').value = '';
+        descInput.value = '';
+        amountInput.value = '';
 
         updateSummaryAndStorage();
         renderTransactions();
@@ -203,9 +266,13 @@
         localStorage.setItem('herworth_transactions', JSON.stringify(transactions));
 
         // Render values
-        document.getElementById('headerIncome').innerText = totalInc.toLocaleString();
-        document.getElementById('headerExpenses').innerText = totalExp.toLocaleString();
-        document.getElementById('headerBalance').innerText = balance.toLocaleString();
+        const hInc = document.getElementById('headerIncome');
+        const hExp = document.getElementById('headerExpenses');
+        const hBal = document.getElementById('headerBalance');
+
+        if (hInc) hInc.innerText = totalInc.toLocaleString();
+        if (hExp) hExp.innerText = totalExp.toLocaleString();
+        if (hBal) hBal.innerText = balance.toLocaleString();
 
         // Update Currency Symbols
         const symbols = { 'INR': '₹', 'USD': '$', 'EUR': '€', 'GBP': '£' };
@@ -217,10 +284,12 @@
         currentFilter = filter;
         ['All', 'Expense', 'Income'].forEach(f => {
             const btn = document.getElementById('filter' + f);
-            if (f.toUpperCase() === filter) {
-                btn.className = "px-3 py-1.5 rounded-xl bg-[#F5EFF2] text-[#3D1E28]";
-            } else {
-                btn.className = "px-3 py-1.5 rounded-xl text-[#8C7A7E] hover:bg-[#F5EFF2]";
+            if (btn) {
+                if (f.toUpperCase() === filter) {
+                    btn.className = "px-3 py-1.5 rounded-xl bg-[#F5EFF2] text-[#3D1E28]";
+                } else {
+                    btn.className = "px-3 py-1.5 rounded-xl text-[#8C7A7E] hover:bg-[#F5EFF2]";
+                }
             }
         });
         renderTransactions();
@@ -228,6 +297,7 @@
 
     function renderTransactions() {
         const container = document.getElementById('transactionList');
+        if (!container) return;
         
         let filtered = transactions;
         if (currentFilter !== 'ALL') {
@@ -278,7 +348,177 @@
         }).join('');
     }
 
-    // Initialize page
-    initPage();
+    // --- RECEIPT FILE UPLOAD HANDLER ---
+    function triggerReceiptScan() {
+        const input = document.getElementById('receiptFileInput');
+        if (input) input.click();
+    }
+
+    async function handleReceiptUpload(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const btnScan = document.getElementById('btnScan');
+        const scanStatusBox = document.getElementById('scanStatusBox');
+        const scanStatusText = document.getElementById('scanStatusText');
+
+        const formData = new FormData();
+        formData.append('receipt_image', file);
+
+        if (btnScan) btnScan.disabled = true;
+        if (scanStatusBox) scanStatusBox.classList.remove('hidden');
+        if (scanStatusText) scanStatusText.textContent = "Scanning bill & categorizing with Groq AI...";
+
+        try {
+            const response = await fetch('/scan-receipt', {
+                method: 'POST',
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.ok && data.success) {
+                data.items.forEach(item => {
+                    transactions.unshift({
+                        id: Date.now() + Math.random(),
+                        desc: item.description,
+                        amount: Math.abs(parseFloat(item.amount)),
+                        type: 'EXPENSE',
+                        category: expenseCategories.includes(item.category) ? item.category : 'Other',
+                        date: item.date || new Date().toISOString().split('T')[0]
+                    });
+                });
+
+                if (scanStatusText) {
+                    scanStatusText.textContent = `Success! Parsed and added ${data.items.length} entries.`;
+                }
+
+                updateSummaryAndStorage();
+                renderTransactions();
+
+                setTimeout(() => {
+                    if (scanStatusBox) scanStatusBox.classList.add('hidden');
+                }, 3000);
+            } else {
+                alert(data.error || 'Failed to scan receipt image.');
+                if (scanStatusBox) scanStatusBox.classList.add('hidden');
+            }
+        } catch (err) {
+            console.error('Scan Error:', err);
+            alert('An error occurred while uploading/scanning the bill.');
+            if (scanStatusBox) scanStatusBox.classList.add('hidden');
+        } finally {
+            if (btnScan) btnScan.disabled = false;
+            event.target.value = ''; // Reset file input
+        }
+    }
+
+    // --- REAL-TIME WEBCAM SCANNER FUNCTIONS ---
+    async function openCameraModal() {
+        const modal = document.getElementById('cameraModal');
+        const video = document.getElementById('webcamVideo');
+
+        if (!modal || !video) return;
+
+        try {
+            mediaStream = await navigator.mediaDevices.getUserMedia({
+                video: { facingMode: 'environment' }
+            });
+            video.srcObject = mediaStream;
+            modal.classList.remove('hidden');
+        } catch (err) {
+            console.error("Camera access error:", err);
+            alert("Unable to access camera. Please make sure your browser has permission to access your webcam/camera.");
+        }
+    }
+
+    function closeCameraModal() {
+        const modal = document.getElementById('cameraModal');
+        if (mediaStream) {
+            mediaStream.getTracks().forEach(track => track.stop());
+            mediaStream = null;
+        }
+        if (modal) modal.classList.add('hidden');
+    }
+
+    async function captureAndProcess() {
+        const video = document.getElementById('webcamVideo');
+        const canvas = document.getElementById('snapshotCanvas');
+        if (!video || !canvas) return;
+
+        const ctx = canvas.getContext('2d');
+
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        closeCameraModal();
+
+        const btnScan = document.getElementById('btnScan');
+        const scanStatusBox = document.getElementById('scanStatusBox');
+        const scanStatusText = document.getElementById('scanStatusText');
+
+        if (btnScan) btnScan.disabled = true;
+        if (scanStatusBox) scanStatusBox.classList.remove('hidden');
+        if (scanStatusText) scanStatusText.textContent = "Scanning bill & categorizing with Groq AI...";
+
+        canvas.toBlob(async (blob) => {
+            if (!blob) {
+                alert('Failed to capture frame from webcam.');
+                if (btnScan) btnScan.disabled = false;
+                if (scanStatusBox) scanStatusBox.classList.add('hidden');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('receipt_image', blob, 'webcam_capture.jpg');
+
+            try {
+                const response = await fetch('/scan-receipt', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok && data.success) {
+                    data.items.forEach(item => {
+                        transactions.unshift({
+                            id: Date.now() + Math.random(),
+                            desc: item.description,
+                            amount: Math.abs(parseFloat(item.amount)),
+                            type: 'EXPENSE',
+                            category: expenseCategories.includes(item.category) ? item.category : 'Other',
+                            date: item.date || new Date().toISOString().split('T')[0]
+                        });
+                    });
+
+                    if (scanStatusText) {
+                        scanStatusText.textContent = `Success! Parsed and added ${data.items.length} entries.`;
+                    }
+
+                    updateSummaryAndStorage();
+                    renderTransactions();
+
+                    setTimeout(() => {
+                        if (scanStatusBox) scanStatusBox.classList.add('hidden');
+                    }, 3000);
+                } else {
+                    alert(data.error || 'Failed to scan receipt image.');
+                    if (scanStatusBox) scanStatusBox.classList.add('hidden');
+                }
+            } catch (err) {
+                console.error('Scan Error:', err);
+                alert('An error occurred while uploading/scanning the bill.');
+                if (scanStatusBox) scanStatusBox.classList.add('hidden');
+            } finally {
+                if (btnScan) btnScan.disabled = false;
+            }
+        }, 'image/jpeg', 0.9);
+    }
+
+    // Safely initialize once DOM finishes rendering
+    document.addEventListener('DOMContentLoaded', initPage);
 </script>
 {% endblock %}

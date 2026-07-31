@@ -1,5 +1,8 @@
 import os
+import json
 import secrets
+import base64
+from datetime import date
 import chromadb
 from chromadb.utils import embedding_functions
 from dotenv import load_dotenv
@@ -48,6 +51,7 @@ def overview():
 def budget():
     """Budget route to render the interactive budget template."""
     return render_template('budget.html')
+
 
 @app.route('/savings')
 def savings():
@@ -108,6 +112,102 @@ def register():
 
     # If request is GET, render the register page
     return render_template('register.html')
+
+
+# ---------------------------------------------------------
+# Receipt Scanning API Endpoint (Groq Vision)
+# ---------------------------------------------------------
+
+@app.route('/scan-receipt', methods=['POST'])
+def scan_receipt():
+    """
+    Processes uploaded receipt images using Groq's Vision AI model.
+    Extracts itemized expenses, dates, and amounts in strict JSON format.
+    """
+    if 'receipt_image' not in request.files:
+        return jsonify({'error': 'No image file uploaded'}), 400
+
+    file = request.files['receipt_image']
+    if file.filename == '':
+        return jsonify({'error': 'No image selected'}), 400
+
+    try:
+        # Convert file stream directly to Base64 encoding
+        base64_image = base64.b64encode(file.read()).decode('utf-8')
+        today_str = date.today().strftime('%Y-%m-%d')
+
+        prompt = f"""
+        You are an intelligent financial receipt parser. 
+        Analyze this receipt/bill image and extract all individual line item expenses.
+
+        Categorize each item into EXACTLY ONE of these categories:
+        - Housing
+        - Food
+        - Fun
+        - Health
+        - Beauty
+        - Education
+        - Subscriptions
+        - Transport
+        - Other
+
+        Today's date default is "{today_str}".
+
+        Return ONLY a strictly valid JSON object structured like this:
+        {{
+            "items": [
+                {{
+                    "description": "Item or store name",
+                    "amount": 250.00,
+                    "category": "Food",
+                    "date": "YYYY-MM-DD"
+                }}
+            ]
+        }}
+
+        Rules:
+        1. "amount" must be a clean numeric float/int value (do not include currency symbols like ₹ or $).
+        2. Extract individual itemized purchases if listed clearly on the receipt.
+        3. If dates are not clearly visible on the receipt, use "{today_str}".
+        """
+
+        # Query Groq Vision AI model
+        completion = groq_client.chat.completions.create(
+            model="llama-3.2-11b-vision-preview",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": prompt},
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/jpeg;base64,{base64_image}"
+                            },
+                        },
+                    ],
+                }
+            ],
+            temperature=0.2,
+            response_format={"type": "json_object"}
+        )
+
+        raw_response = completion.choices[0].message.content.strip()
+        parsed_data = json.loads(raw_response)
+        items = parsed_data.get("items", [])
+
+        if not items:
+            return jsonify({'error': 'Could not extract valid transaction items from this receipt.'}), 400
+
+        return jsonify({
+            'success': True,
+            'items': items,
+            'message': f"Successfully parsed {len(items)} items!"
+        })
+
+    except Exception as e:
+        print(f"Error in /scan-receipt: {e}")
+        return jsonify({'error': f'Failed to process receipt image: {str(e)}'}), 500
 
 
 # ---------------------------------------------------------
@@ -175,7 +275,7 @@ Formatting & Tone Guidelines:
                 {"role": "system", "content": system_prompt},
                 {"role": "user", "content": user_prompt}
             ],
-            model="llama-3.3-70b-versatile",
+            model="llama-3.2-11b-vision-instruct",
             temperature=0.3
         )
 
@@ -217,4 +317,4 @@ def debug_routes():
 # ---------------------------------------------------------
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
