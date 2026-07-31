@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Femmestry - Your Money Coach</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f8f6fc; font-family: 'Inter', sans-serif; }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between p-6">
+
+    <!-- Header Section -->
+    <div class="max-w-4xl mx-auto w-full mb-4">
+        <h1 class="text-3xl font-bold text-slate-800">Your money coach</h1>
+        <p class="text-slate-500 text-sm mt-1">Balanced answers, no product pushing, no judgement. Chats aren't stored or shared.</p>
+    </div>
+
+    <!-- Main Chat Box Container -->
+    <div class="max-w-4xl mx-auto w-full bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex-1 flex flex-col justify-between min-h-[500px]">
+        
+        <!-- Chat Messages Window -->
+        <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 pr-2 max-h-[420px]">
+            <!-- Initial Coach Greeting Message -->
+            <div class="flex items-start gap-3">
+                <div class="bg-indigo-50 text-slate-700 p-4 rounded-2xl max-w-xl text-sm leading-relaxed">
+                    Hi. Ask me anything about money — no question is too basic, and I'll always give you the full picture, upsides and risks both.
+                </div>
+            </div>
+        </div>
+
+        <!-- Dynamic Suggested Prompts (Pills) -->
+        <div class="mt-4 pt-4 border-t border-slate-50">
+            <div id="quick-pills" class="flex flex-wrap gap-2 mb-3">
+                <button onclick="usePrompt('What\'s the difference between NEFT and IMPS?')" class="text-xs bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 px-3 py-2 rounded-full transition">
+                    What's the difference between NEFT and IMPS?
+                </button>
+                <button onclick="usePrompt('Is an FD better than a SIP for me?')" class="text-xs bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 px-3 py-2 rounded-full transition">
+                    Is an FD better than a SIP for me?
+                </button>
+                <button onclick="usePrompt('How do I start an emergency fund?')" class="text-xs bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 px-3 py-2 rounded-full transition">
+                    How do I start an emergency fund?
+                </button>
+            </div>
+
+            <!-- Input Box and Send Button -->
+            <form id="chat-form" onsubmit="sendMessage(event)" class="relative flex items-center">
+                <input 
+                    type="text" 
+                    id="user-input" 
+                    placeholder="Ask your doubt..." 
+                    required
+                    class="w-full bg-white border border-slate-800 rounded-full py-3.5 pl-5 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
+                />
+                <button 
+                    type="submit" 
+                    class="absolute right-2 bg-slate-900 text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-slate-800 transition">
+                    <i class="fa-solid fa-paper-plane text-xs"></i>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- JavaScript Chat Logic -->
+    <script>
+        function usePrompt(text) {
+            document.getElementById('user-input').value = text;
+            sendMessage(new Event('submit'));
+        }
+
+        async function sendMessage(e) {
+            e.preventDefault();
+            const inputField = document.getElementById('user-input');
+            const chatMessages = document.getElementById('chat-messages');
+            const query = inputField.value.trim();
+
+            if (!query) return;
+
+            // 1. Append User Message
+            const userBubble = `
+                <div class="flex justify-end">
+                    <div class="bg-slate-900 text-white p-4 rounded-2xl max-w-xl text-sm leading-relaxed">
+                        ${query}
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', userBubble);
+            inputField.value = '';
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            // 2. Append Loading Skeleton
+            const loadingId = 'loading-' + Date.now();
+            const loadingBubble = `
+                <div id="${loadingId}" class="flex items-start gap-3">
+                    <div class="bg-indigo-50 text-slate-500 p-4 rounded-2xl max-w-xl text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-circle-notch fa-spin"></i> Coach is thinking...
+                    </div>
+                </div>
+            `;
+            chatMessages.insertAdjacentHTML('beforeend', loadingBubble);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+
+            try {
+                // 3. Call Flask Backend RAG Endpoint
+                const response = await fetch('/api/rag/explain', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ query: query, level: 5 })
+                });
+
+                const data = await response.json();
+                document.getElementById(loadingId).remove();
+
+                if (data.success) {
+                    // Render AI Coach Response
+                    const coachBubble = `
+                        <div class="flex items-start gap-3">
+                            <div class="bg-indigo-50 text-slate-800 p-4 rounded-2xl max-w-xl text-sm leading-relaxed whitespace-pre-line">
+                                ${data.answer}
+                            </div>
+                        </div>
+                    `;
+                    chatMessages.insertAdjacentHTML('beforeend', coachBubble);
+                } else {
+                    alert('Error getting response: ' + data.error);
+                }
+            } catch (err) {
+                document.getElementById(loadingId).remove();
+                alert('Could not connect to the server.');
+            }
+
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+    </script>
+</body>
+</html>

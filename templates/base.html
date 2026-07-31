@@ -3,56 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>HerWealth - Money, Mastered</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <title>{% block title %}HERWORTH - Money, Mastered{% endblock %}</title>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- FontAwesome Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Google Fonts (Playfair Display for elegant headings) -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        .font-serif-display { font-family: 'Playfair Display', Georgia, serif; }
+        
+        /* Custom scrollbar for sleeker UI */
+        ::-webkit-scrollbar {
+            width: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #FAF8F8;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #E5DCDD;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #A39296;
+        }
+    </style>
 </head>
-<body>
+<body class="bg-[#FAF8F8] text-[#3A3335] min-h-screen flex font-sans antialiased selection:bg-[#3D1E28] selection:text-white">
 
-    <!-- Header Navigation Bar -->
-    <header class="navbar">
-        <div class="nav-container">
-            
-            <!-- Brand Logo & Tagline -->
-            <a href="/" class="brand-logo">
-                <div class="logo-badge">
-                    <span class="rupee-symbol">₹</span>
-                    <span class="notification-dot"></span>
-                </div>
-                <div class="brand-text">
-                    <span class="brand-name">HerWealth</span>
-                    <span class="brand-tagline">MONEY, MASTERED</span>
-                </div>
-            </a>
-
-            <!-- Navigation Links -->
-            <nav class="nav-links">
-                <a href="/" class="nav-item active">Home</a>
-                <a href="/learn" class="nav-item">Learn</a>
-                <a href="/play" class="nav-item">Play</a>
-                <a href="/quiz" class="nav-item">Quiz</a>
-                <a href="/coach" class="nav-item">Coach</a>
-                <a href="/circle" class="nav-item">Circle</a>
-            </nav>
-
-            <!-- Right Action / Logout Icon -->
-            <div class="nav-right">
-                <a href="/login" class="logout-btn" title="Logout">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-                        <polyline points="16 17 21 12 16 7"></polyline>
-                        <line x1="21" y1="12" x2="9" y2="12"></line>
-                    </svg>
+    <!-- Left Sidebar Navigation -->
+    <aside class="w-64 bg-[#FAF8F8] border-r border-[#EFEBEA] flex flex-col justify-between p-6 shrink-0 min-h-screen sticky top-0 h-screen">
+        <div>
+            <!-- Brand Logo / Header -->
+            <div class="mb-10 pl-2">
+                <a href="{{ url_for('overview') }}" class="group block">
+                    <h1 class="text-xl font-bold tracking-[0.2em] text-[#3D1E28] font-serif-display group-hover:opacity-90 transition">HERWORTH</h1>
+                    <p class="text-[10px] tracking-widest text-[#8C7A7E] uppercase mt-0.5">MONEY, MASTERED</p>
                 </a>
             </div>
 
+            <!-- Navigation Links -->
+            <nav class="space-y-1 text-sm font-medium">
+                <a href="{{ url_for('overview') }}" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-[#6E5E63] hover:bg-[#F5EFF2] hover:text-[#3D1E28] transition">
+                    <i class="fa-solid fa-border-all text-sm w-5 text-center"></i>
+                    Overview
+                </a>
+                <a href="{{ url_for('budget') }}" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-[#6E5E63] hover:bg-[#F5EFF2] hover:text-[#3D1E28] transition">
+                    <i class="fa-regular fa-folder text-sm w-5 text-center"></i>
+                    Budget
+                </a>
+                <a href="{{ url_for('savings') }}" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-[#6E5E63] hover:bg-[#F5EFF2] hover:text-[#3D1E28] transition">
+                    <i class="fa-regular fa-compass text-sm w-5 text-center"></i>
+                    Savings
+                </a>
+                <a href="{{ url_for('learn') }}" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-[#6E5E63] hover:bg-[#F5EFF2] hover:text-[#3D1E28] transition">
+                    <i class="fa-regular fa-bookmark text-sm w-5 text-center"></i>
+                    Learn
+                </a>
+                <a href="{{ url_for('quiz') }}" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-[#6E5E63] hover:bg-[#F5EFF2] hover:text-[#3D1E28] transition">
+                    <i class="fa-regular fa-circle-question text-sm w-5 text-center"></i>
+                    Quiz
+                </a>
+                <a href="{{ url_for('coach') }}" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-[#6E5E63] hover:bg-[#F5EFF2] hover:text-[#3D1E28] transition">
+                    <i class="fa-solid fa-wand-magic-sparkles text-sm w-5 text-center"></i>
+                    Coach
+                </a>
+            </nav>
         </div>
-    </header>
+
+        <!-- Sign Out Button at Bottom -->
+        <div class="pt-6 border-t border-[#EFEBEA] pl-2">
+            <a href="{{ url_for('login') }}" class="flex items-center gap-3 text-sm font-medium text-[#6E5E63] hover:text-[#3D1E28] transition">
+                <i class="fa-solid fa-right-from-bracket text-sm"></i>
+                Sign out
+            </a>
+        </div>
+    </aside>
 
     <!-- Main Content Area -->
-    <main class="main-content">
+    <main class="flex-1 p-10 max-w-7xl mx-auto overflow-y-auto">
         {% block content %}{% endblock %}
     </main>
 

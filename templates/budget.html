@@ -1,35 +1,284 @@
 {% extends "base.html" %}
-{% block title %}Budget Shield{% endblock %}
+{% block title %}HERWORTH - Budget{% endblock %}
+
 {% block content %}
-<p class="eyebrow">Interactive Budgeting</p>
-<h1 style="font-size:1.8rem; margin-bottom:6px;">Needs · Wants · Savings</h1>
-<p class="muted" style="margin-bottom:28px;">Drag the sliders to allocate your income. Your Safety Shield updates in real time.</p>
-
-<div class="grid grid-2">
-  <div class="card">
-    <div class="budget-slider-row">
-      <div class="row-head"><span style="color:var(--rose);">Needs</span><strong id="needs-value">{{ budget.needs_pct if budget else 50 }}%</strong></div>
-      <input type="range" id="needs" min="0" max="100" value="{{ budget.needs_pct if budget else 50 }}">
-    </div>
-    <div class="budget-slider-row">
-      <div class="row-head"><span style="color:var(--gold);">Wants</span><strong id="wants-value">{{ budget.wants_pct if budget else 30 }}%</strong></div>
-      <input type="range" id="wants" min="0" max="100" value="{{ budget.wants_pct if budget else 30 }}">
-    </div>
-    <div class="budget-slider-row">
-      <div class="row-head"><span style="color:var(--mint);">Savings</span><strong id="savings-value">{{ budget.savings_pct if budget else 20 }}%</strong></div>
-      <input type="range" id="savings" min="0" max="100" value="{{ budget.savings_pct if budget else 20 }}">
-    </div>
-    <p class="muted" id="total-note" style="font-size:.8rem;"></p>
-    <button class="btn btn-primary btn-block" id="save-budget" style="margin-top:10px;">Save allocation</button>
-  </div>
-
-  <div class="card" style="text-align:center;">
-    <p class="eyebrow">Safety Shield</p>
-    <div class="shield-gauge" id="budget-shield"></div>
-    <p class="muted" id="shield-copy" style="font-size:.85rem; margin-top:12px;"></p>
-  </div>
+<!-- Top Header & Dynamic Summary -->
+<div class="mb-8">
+    <span class="text-xs font-bold tracking-[0.15em] text-[#A39296] uppercase">BUDGET</span>
+    <h2 class="text-4xl font-bold text-[#2B1B22] font-serif-display mt-2">Every dollar, accounted for</h2>
+    <p class="text-sm text-[#8C7A7E] mt-2">
+        This month: <span class="font-semibold text-[#3D1E28]"><span class="curr-symbol">₹</span><span id="headerIncome">0</span> in</span>, 
+        <span class="font-semibold text-[#3D1E28]"><span class="curr-symbol">₹</span><span id="headerExpenses">0</span> out</span> — 
+        leaving <span class="font-semibold text-[#3D1E28]"><span class="curr-symbol">₹</span><span id="headerBalance">0</span></span>.
+    </p>
 </div>
 
-<script src="{{ url_for('static', filename='js/gauge.js') }}"></script>
-<script src="{{ url_for('static', filename='js/budget-sliders.js') }}"></script>
+<!-- Entry Input Form Card -->
+<div class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm mb-8">
+    <!-- Type Toggle Buttons (Expense vs Income) -->
+    <div class="flex gap-2 mb-5">
+        <button id="btnExpense" type="button" onclick="setType('EXPENSE')" class="px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white">
+            EXPENSE
+        </button>
+        <button id="btnIncome" type="button" onclick="setType('INCOME')" class="px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28]">
+            INCOME
+        </button>
+    </div>
+
+    <!-- Interactive Form -->
+    <form onsubmit="addEntry(event)" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
+        <!-- Description Input -->
+        <div class="md:col-span-4">
+            <input type="text" id="entryDesc" required placeholder="Description" class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-4 py-3 text-xs font-medium outline-none focus:border-[#3D1E28]">
+        </div>
+
+        <!-- Amount Input -->
+        <div class="md:col-span-3">
+            <input type="number" step="any" id="entryAmount" required placeholder="Amount" class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-4 py-3 text-xs font-medium outline-none focus:border-[#3D1E28]">
+        </div>
+
+        <!-- Dynamic Category Select Dropdown -->
+        <div class="md:col-span-3 relative">
+            <select id="entryCategory" class="w-full appearance-none bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-4 py-3 pr-8 text-xs font-medium text-[#4A3B40] outline-none focus:border-[#3D1E28] cursor-pointer">
+                <!-- Dynamically populated via JS -->
+            </select>
+            <i class="fa-solid fa-chevron-down text-[10px] text-[#A39296] absolute right-4 top-3.5 pointer-events-none"></i>
+        </div>
+
+        <!-- Date Picker Input -->
+        <div class="md:col-span-2">
+            <input type="date" id="entryDate" required class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-3 py-3 text-xs font-medium outline-none focus:border-[#3D1E28]">
+        </div>
+
+        <!-- Submit Button -->
+        <div class="md:col-span-12 pt-2">
+            <button type="submit" class="bg-[#3D1E28] text-white hover:bg-[#2B1B22] px-6 py-3 rounded-2xl text-xs font-semibold transition shadow-sm">
+                Add entry
+            </button>
+        </div>
+    </form>
+</div>
+
+<!-- Transactions List Section -->
+<div class="bg-white border border-[#F0EAEB] rounded-3xl shadow-sm overflow-hidden mb-12">
+    <!-- Filter Tabs Header -->
+    <div class="flex items-center justify-between p-6 border-b border-[#F0EAEB]">
+        <h3 class="text-sm font-bold tracking-[0.1em] text-[#3D1E28] uppercase">Transactions</h3>
+        
+        <div class="flex gap-2 text-xs font-semibold">
+            <button onclick="setFilter('ALL')" id="filterAll" class="px-3 py-1.5 rounded-xl bg-[#F5EFF2] text-[#3D1E28]">All</button>
+            <button onclick="setFilter('EXPENSE')" id="filterExpense" class="px-3 py-1.5 rounded-xl text-[#8C7A7E] hover:bg-[#F5EFF2]">Expenses</button>
+            <button onclick="setFilter('INCOME')" id="filterIncome" class="px-3 py-1.5 rounded-xl text-[#8C7A7E] hover:bg-[#F5EFF2]">Income</button>
+        </div>
+    </div>
+
+    <!-- Transaction List Container -->
+    <div id="transactionList" class="divide-y divide-[#F0EAEB]">
+        <!-- Rendered by JS -->
+    </div>
+</div>
+
+<script>
+    // Color Palette matching Overview Donut Chart
+    const categoryColors = {
+        'Housing': '#3D1E28',
+        'Food': '#CFA6C0',
+        'Fun': '#8E79B4',
+        'Health': '#E5B597',
+        'Beauty': '#8DBDC0',
+        'Education': '#5C82A6',
+        'Subscriptions': '#A288A6',
+        'Transport': '#B592A0',
+        'Salary': '#2B5B45',
+        'Freelance': '#4B8B62',
+        'Bonus': '#D4A359',
+        'Investments': '#3B6E8C',
+        'Other': '#E8C5D8'
+    };
+
+    const expenseCategories = ['Housing', 'Food', 'Fun', 'Health', 'Beauty', 'Education', 'Subscriptions', 'Transport', 'Other'];
+    const incomeCategories = ['Salary', 'Freelance', 'Bonus', 'Investments', 'Other'];
+
+    let currentType = 'EXPENSE';
+    let currentFilter = 'ALL';
+
+    // Default Initial Transactions
+    const defaultTransactions = [
+        { id: 1, desc: 'Online course', amount: 150, type: 'EXPENSE', category: 'Education', date: '2026-07-22' },
+        { id: 2, desc: 'Salon', amount: 180, type: 'EXPENSE', category: 'Beauty', date: '2026-07-20' },
+        { id: 3, desc: 'Dinners out', amount: 310, type: 'EXPENSE', category: 'Fun', date: '2026-07-18' },
+        { id: 4, desc: 'Freelance project', amount: 900, type: 'INCOME', category: 'Freelance', date: '2026-07-12' },
+        { id: 5, desc: 'Groceries', amount: 540, type: 'EXPENSE', category: 'Food', date: '2026-07-08' },
+        { id: 6, desc: 'Health insurance', amount: 260, type: 'EXPENSE', category: 'Health', date: '2026-07-06' },
+        { id: 7, desc: 'Streaming + apps', amount: 74, type: 'EXPENSE', category: 'Subscriptions', date: '2026-07-05' },
+        { id: 8, desc: 'Metro pass', amount: 120, type: 'EXPENSE', category: 'Transport', date: '2026-07-03' },
+        { id: 9, desc: 'Rent', amount: 1850, type: 'EXPENSE', category: 'Housing', date: '2026-07-02' },
+        { id: 10, desc: 'Salary', amount: 6200, type: 'INCOME', category: 'Salary', date: '2026-07-01' }
+    ];
+
+    // Read Data from Shared Local Storage
+    let transactions = JSON.parse(localStorage.getItem('herworth_transactions')) || defaultTransactions;
+    let finData = JSON.parse(localStorage.getItem('herworth_finances')) || {
+        income: 7100,
+        expenses: 3484,
+        savings: 28050,
+        portfolio: 33880,
+        currency: 'INR'
+    };
+
+    function initPage() {
+        // Set date input to today's date automatically
+        document.getElementById('entryDate').value = new Date().toISOString().split('T')[0];
+        
+        populateCategories();
+        updateSummaryAndStorage();
+        renderTransactions();
+    }
+
+    function setType(type) {
+        currentType = type;
+        const btnExp = document.getElementById('btnExpense');
+        const btnInc = document.getElementById('btnIncome');
+
+        if (type === 'EXPENSE') {
+            btnExp.className = "px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white";
+            btnInc.className = "px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28]";
+        } else {
+            btnInc.className = "px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white";
+            btnExp.className = "px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28]";
+        }
+
+        populateCategories();
+    }
+
+    function populateCategories() {
+        const catSelect = document.getElementById('entryCategory');
+        const list = currentType === 'EXPENSE' ? expenseCategories : incomeCategories;
+        catSelect.innerHTML = list.map(c => `<option value="${c}">${c}</option>`).join('');
+    }
+
+    function addEntry(e) {
+        e.preventDefault();
+        const desc = document.getElementById('entryDesc').value.trim();
+        const amount = Math.abs(parseFloat(document.getElementById('entryAmount').value));
+        const category = document.getElementById('entryCategory').value;
+        const date = document.getElementById('entryDate').value;
+
+        if (!desc || isNaN(amount) || amount <= 0) return;
+
+        const newEntry = {
+            id: Date.now(),
+            desc,
+            amount,
+            type: currentType,
+            category,
+            date
+        };
+
+        transactions.unshift(newEntry);
+
+        // Clear input text boxes
+        document.getElementById('entryDesc').value = '';
+        document.getElementById('entryAmount').value = '';
+
+        updateSummaryAndStorage();
+        renderTransactions();
+    }
+
+    function deleteEntry(id) {
+        transactions = transactions.filter(t => t.id !== id);
+        updateSummaryAndStorage();
+        renderTransactions();
+    }
+
+    function updateSummaryAndStorage() {
+        const totalInc = transactions.filter(t => t.type === 'INCOME').reduce((acc, t) => acc + t.amount, 0);
+        const totalExp = transactions.filter(t => t.type === 'EXPENSE').reduce((acc, t) => acc + t.amount, 0);
+        const balance = totalInc - totalExp;
+
+        // Keep Overview cards synced in local storage
+        finData.income = totalInc;
+        finData.expenses = totalExp;
+        localStorage.setItem('herworth_finances', JSON.stringify(finData));
+        localStorage.setItem('herworth_transactions', JSON.stringify(transactions));
+
+        // Render values
+        document.getElementById('headerIncome').innerText = totalInc.toLocaleString();
+        document.getElementById('headerExpenses').innerText = totalExp.toLocaleString();
+        document.getElementById('headerBalance').innerText = balance.toLocaleString();
+
+        // Update Currency Symbols
+        const symbols = { 'INR': '₹', 'USD': '$', 'EUR': '€', 'GBP': '£' };
+        const sym = symbols[finData.currency] || '₹';
+        document.querySelectorAll('.curr-symbol').forEach(el => el.innerText = sym);
+    }
+
+    function setFilter(filter) {
+        currentFilter = filter;
+        ['All', 'Expense', 'Income'].forEach(f => {
+            const btn = document.getElementById('filter' + f);
+            if (f.toUpperCase() === filter) {
+                btn.className = "px-3 py-1.5 rounded-xl bg-[#F5EFF2] text-[#3D1E28]";
+            } else {
+                btn.className = "px-3 py-1.5 rounded-xl text-[#8C7A7E] hover:bg-[#F5EFF2]";
+            }
+        });
+        renderTransactions();
+    }
+
+    function renderTransactions() {
+        const container = document.getElementById('transactionList');
+        
+        let filtered = transactions;
+        if (currentFilter !== 'ALL') {
+            filtered = transactions.filter(t => t.type === currentFilter);
+        }
+
+        filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="p-8 text-center text-xs text-[#8C7A7E]">
+                    No transactions found in this view.
+                </div>
+            `;
+            return;
+        }
+
+        const symbols = { 'INR': '₹', 'USD': '$', 'EUR': '€', 'GBP': '£' };
+        const sym = symbols[finData.currency] || '₹';
+
+        container.innerHTML = filtered.map(item => {
+            const isExp = item.type === 'EXPENSE';
+            const sign = isExp ? '-' : '+';
+            const color = categoryColors[item.category] || '#3D1E28';
+
+            return `
+                <div class="flex items-center justify-between p-5 hover:bg-[#FAF8F8] transition group">
+                    <div class="space-y-1">
+                        <div class="text-sm font-semibold text-[#2B1B22]">${item.desc}</div>
+                        <div class="flex items-center gap-2 text-xs text-[#8C7A7E]">
+                            <span class="inline-block w-2 h-2 rounded-full" style="background-color: ${color}"></span>
+                            <span>${item.category}</span>
+                            <span>·</span>
+                            <span>${item.date}</span>
+                        </div>
+                    </div>
+
+                    <div class="flex items-center gap-4">
+                        <span class="text-sm font-bold ${isExp ? 'text-[#3D1E28]' : 'text-[#2B5B45]'}">
+                            ${sign}${sym}${item.amount.toLocaleString()}
+                        </span>
+                        <button onclick="deleteEntry(${item.id})" class="text-[#A39296] hover:text-[#3D1E28] p-1 transition" title="Delete entry">
+                            <i class="fa-regular fa-trash-can text-sm"></i>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Initialize page
+    initPage();
+</script>
 {% endblock %}
