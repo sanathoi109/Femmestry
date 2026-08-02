@@ -58,7 +58,7 @@ def encrypt_field(plaintext: str) -> str:
         return None
     nonce = os.urandom(_NONCE_SIZE)
     ciphertext = _AESGCM.encrypt(nonce, plaintext.encode("utf-8"), associated_data=None)
-    # Pack nonce + ciphertext (ciphertext already includes the GCM tag)
+
     blob = nonce + ciphertext
     return base64.b64encode(blob).decode("utf-8")
 
