@@ -13,13 +13,9 @@ passwords anywhere, even transiently beyond the request that needs them.
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError, InvalidHash
 
-# Default argon2-cffi parameters already follow OWASP-recommended
-# minimums (time_cost=3, memory_cost=64MB, parallelism=4). We pass them
-# explicitly here so the security posture is visible in code review
-# rather than hidden behind a library default that could change.
 _ph = PasswordHasher(
     time_cost=3,
-    memory_cost=65536,  # 64 MB
+    memory_cost=65536,  
     parallelism=4,
     hash_len=32,
     salt_len=16,

@@ -38,24 +38,17 @@ import os
 import base64
 from cryptography.hazmat.primitives.ciphers.aead import AESGCM
 
-# --- Master key setup -------------------------------------------------
-# In production, set FINLIT_ENC_KEY to a securely generated 32-byte key,
-# base64-encoded, e.g. generated once via:
-#   python -c "import os,base64; print(base64.b64encode(os.urandom(32)).decode())"
-# and injected via your deployment's secret manager / env vars.
+
 _ENV_KEY = os.environ.get("FINLIT_ENC_KEY")
 
 if _ENV_KEY:
     _MASTER_KEY = base64.b64decode(_ENV_KEY)
 else:
-    # Dev fallback ONLY: generates a random key each process start.
-    # This means encrypted data will NOT survive a server restart in dev
-    # mode unless FINLIT_ENC_KEY is set. That's intentional - it forces
-    # a real key to be configured before shipping to production.
+
     _MASTER_KEY = AESGCM.generate_key(bit_length=256)
 
 _AESGCM = AESGCM(_MASTER_KEY)
-_NONCE_SIZE = 12  # bytes - recommended nonce size for GCM
+_NONCE_SIZE = 12 
 
 
 def encrypt_field(plaintext: str) -> str:
