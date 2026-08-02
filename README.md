@@ -8,18 +8,13 @@ privacy.
 
 ```bash
 python3 -m venv venv
-source venv/bin/activate          # Windows: venv\Scripts\activate
+source venv/bin/activate         
 
 pip install -r requirements.txt
 
-# Generate a persistent AES-256 encryption key (32 bytes, base64-encoded).
-# IMPORTANT: if you don't set this, a random key is generated each time
-# the app restarts and you will NOT be able to decrypt previously-saved
-# goals/notes. Always set this in any environment you want data to
-# survive a restart.
+
 export FINLIT_ENC_KEY=$(python3 -c "import os,base64;print(base64.b64encode(os.urandom(32)).decode())")
 
-# Flask session signing key
 export FINLIT_SECRET_KEY=$(python3 -c "import secrets;print(secrets.token_hex(32))")
 
 python3 app.py
