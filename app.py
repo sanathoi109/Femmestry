@@ -8,33 +8,25 @@ from chromadb.utils import embedding_functions
 from dotenv import load_dotenv
 from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
 from groq import Groq
-
-# 1. Load environment variables from .env file
 load_dotenv()
 
 app = Flask(__name__)
 app.secret_key = os.getenv("SECRET_KEY", "super-secret-femmestry-key")
 
-# 2. Initialize Groq API Client
 groq_api_key = os.getenv("GROQ_API_KEY")
 if not groq_api_key:
     print("⚠️ Warning: GROQ_API_KEY is missing from your .env file!")
 
 groq_client = Groq(api_key=groq_api_key)
 
-# 3. Initialize ChromaDB (Persistent local vector storage)
 chroma_client = chromadb.PersistentClient(path="./chroma_db")
 emb_fn = embedding_functions.DefaultEmbeddingFunction()
 
-# Get or create vector collection
 collection = chroma_client.get_or_create_collection(
     name="femmestry_curriculum",
     embedding_function=emb_fn
 )
 
-# ---------------------------------------------------------
-# Web Page Navigation & Auth Routes
-# ---------------------------------------------------------
 
 @app.route('/')
 def home():
@@ -86,7 +78,6 @@ def circle():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
-        # Auth logic goes here; redirecting to overview upon login
         return redirect(url_for('overview'))
 
     return render_template('login.html')
@@ -95,11 +86,8 @@ def login():
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == 'POST':
-        # Retrieve form data submitted from register.html
         nickname = request.form.get('nickname', 'Anonymous Saver').strip() or 'Anonymous Saver'
         password = request.form.get('password')
-
-        # Generate a unique anonymous ID (e.g., FEM-FTC333)
         random_suffix = secrets.token_hex(2).upper()
         generated_id = f"FEM-FTC{random_suffix}"
 
@@ -107,16 +95,10 @@ def register():
 
         flash(f"Welcome, {nickname}! Your anonymous ID is {generated_id}.", "success")
 
-        # Redirect to overview page after successful registration
         return redirect(url_for('overview'))
 
-    # If request is GET, render the register page
     return render_template('register.html')
 
-
-# ---------------------------------------------------------
-# Receipt Scanning API Endpoint (Groq Vision)
-# ---------------------------------------------------------
 
 @app.route('/scan-receipt', methods=['POST'])
 def scan_receipt():
@@ -132,7 +114,6 @@ def scan_receipt():
         return jsonify({'error': 'No image selected'}), 400
 
     try:
-        # Convert file stream directly to Base64 encoding
         base64_image = base64.b64encode(file.read()).decode('utf-8')
         today_str = date.today().strftime('%Y-%m-%d')
 
@@ -171,7 +152,6 @@ def scan_receipt():
         3. If dates are not clearly visible on the receipt, use "{today_str}".
         """
 
-        # Query Groq Vision AI model
         completion = groq_client.chat.completions.create(
             model="llama-3.2-11b-vision-preview",
             messages=[
@@ -210,9 +190,6 @@ def scan_receipt():
         return jsonify({'error': f'Failed to process receipt image: {str(e)}'}), 500
 
 
-# ---------------------------------------------------------
-# RAG API Endpoint for the AI Money Coach
-# ---------------------------------------------------------
 
 @app.route('/api/rag/explain', methods=['POST'])
 def rag_explain():
@@ -227,7 +204,6 @@ def rag_explain():
                 "error": "Query cannot be empty."
             }), 400
 
-        # Step 1: Search ChromaDB for matching curriculum context
         results = collection.query(
             query_texts=[user_query],
             n_results=2,
@@ -246,7 +222,6 @@ def rag_explain():
             else "General Indian financial knowledge."
         )
 
-        # Step 2: Formulate System & User Prompts
         system_prompt = (
             "You are 'Femmestry Money Coach', a supportive, empathetic financial mentor for women in India. "
             "Your goal is to build financial confidence using clear, simple language, practical real-life examples, "
@@ -269,7 +244,6 @@ Formatting & Tone Guidelines:
 - End with a gentle, empowering tip for financial confidence.
 """
 
-        # Step 3: Send request to Groq API (Llama 3.3 70B)
         response = groq_client.chat.completions.create(
             messages=[
                 {"role": "system", "content": system_prompt},
@@ -296,9 +270,7 @@ Formatting & Tone Guidelines:
         }), 500
 
 
-# ---------------------------------------------------------
-# Debug route to inspect registered endpoints
-# ---------------------------------------------------------
+
 
 @app.route('/debug-routes')
 def debug_routes():
@@ -312,9 +284,6 @@ def debug_routes():
     return "<br>".join(lines)
 
 
-# ---------------------------------------------------------
-# App entry point
-# ---------------------------------------------------------
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=5000, debug=True)
