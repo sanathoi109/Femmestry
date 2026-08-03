@@ -153,24 +153,25 @@ def scan_receipt():
         """
 
         completion = groq_client.chat.completions.create(
-            model="llama-3.2-11b-vision-preview",
-            messages=[
+    model="qwen/qwen3.6-27b",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": prompt},
                 {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": prompt},
-                        {
-                            "type": "image_url",
-                            "image_url": {
-                                "url": f"data:image/jpeg;base64,{base64_image}"
-                            },
-                        },
-                    ],
-                }
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}"
+                    },
+                },
             ],
-            temperature=0.2,
-            response_format={"type": "json_object"}
-        )
+        }
+    ],
+    temperature=0.2,
+    response_format={"type": "json_object"}
+)
+
 
         raw_response = completion.choices[0].message.content.strip()
         parsed_data = json.loads(raw_response)
@@ -245,13 +246,19 @@ Formatting & Tone Guidelines:
 """
 
         response = groq_client.chat.completions.create(
-            messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
-            ],
-            model="llama-3.2-11b-vision-instruct",
-            temperature=0.3
-        )
+    model="qwen/qwen3.6-27b",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "Please analyze this bill and categorize the expense."},
+                {"type": "image_url", "image_url": {"url": "https://example.com/receipt.jpg"}}
+            ]
+        }
+    ],
+    temperature=0.3
+)
+
 
         answer = response.choices[0].message.content
 
