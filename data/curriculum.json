@@ -1,0 +1,26 @@
+[
+  {
+    "id": "banking_1",
+    "topic": "Difference between NEFT, RTGS, and IMPS",
+    "level": 1,
+    "content": "NEFT (National Electronic Funds Transfer) processes transactions in batches every half-hour and is ideal for non-urgent payments without a minimum limit. IMPS (Immediate Payment Service) allows instant 24/7 transfers up to 5 Lakhs using mobile numbers or account details. RTGS (Real Time Gross Settlement) is used for high-value transactions above 2 Lakhs with continuous real-time processing."
+  },
+  {
+    "id": "investing_1",
+    "topic": "Fixed Deposit vs SIP in Mutual Funds",
+    "level": 2,
+    "content": "Fixed Deposits (FD) offer guaranteed, risk-free returns locked in over a set tenor, making them ideal for short-term preservation. Systematic Investment Plans (SIPs) in Equity Mutual Funds invest small regular amounts into equity markets, offering higher inflation-beating potential over 5+ years but subject to market volatility."
+  },
+  {
+    "id": "emergency_1",
+    "topic": "How to Build an Emergency Fund",
+    "level": 1,
+    "content": "An emergency fund should cover 3 to 6 months of essential living expenses (rent, groceries, EMIs, insurance). It should be kept in highly liquid and safe accounts, such as a high-yield savings account or liquid mutual funds, rather than locked investments."
+  },
+  {
+    "id": "upi_1",
+    "topic": "UPI and Payment Safety",
+    "level": 1,
+    "content": "Unified Payments Interface (UPI) enables instant mobile money transfers using a VPA (Virtual Payment Address) or QR code. Remember: You ONLY enter your UPI PIN to SEND money, never to receive money."
+  }
+]

@@ -1,0 +1,156 @@
+{% extends 'base.html' %}
+
+{% block title %}Learn - HERWORTH{% endblock %}
+
+{% block content %}
+<div class="space-y-8" x-data="learnApp()">
+
+
+    <div>
+        <p class="text-xs uppercase tracking-widest text-[#8C7A7E] font-semibold mb-1">LEARN</p>
+        <h1 class="text-4xl font-bold font-serif-display text-[#3D1E28]">Money knowledge, in small doses</h1>
+        <p class="text-[#6E5E63] mt-2 text-sm">
+            <span x-text="completedCount">0</span> of <span x-text="lessons.length">10</span> lessons completed. Each one you mark done adds its questions to your Quiz pool.
+        </p>
+    </div>
+
+    
+    <div class="flex flex-wrap gap-3">
+        <button @click="activeTab = 'ALL'" :class="activeTab === 'ALL' ? 'bg-[#3D1E28] text-white' : 'bg-white text-[#6E5E63] border border-[#EFEBEA] hover:bg-[#F5EFF2]'" class="px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all shadow-sm">ALL</button>
+        <button @click="activeTab = 'BUDGETING'" :class="activeTab === 'BUDGETING' ? 'bg-[#3D1E28] text-white' : 'bg-white text-[#6E5E63] border border-[#EFEBEA] hover:bg-[#F5EFF2]'" class="px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all shadow-sm">BUDGETING</button>
+        <button @click="activeTab = 'SAVING'" :class="activeTab === 'SAVING' ? 'bg-[#3D1E28] text-white' : 'bg-white text-[#6E5E63] border border-[#EFEBEA] hover:bg-[#F5EFF2]'" class="px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all shadow-sm">SAVING</button>
+        <button @click="activeTab = 'INVESTING'" :class="activeTab === 'INVESTING' ? 'bg-[#3D1E28] text-white' : 'bg-white text-[#6E5E63] border border-[#EFEBEA] hover:bg-[#F5EFF2]'" class="px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all shadow-sm">INVESTING</button>
+        <button @click="activeTab = 'INDEPENDENCE'" :class="activeTab === 'INDEPENDENCE' ? 'bg-[#3D1E28] text-white' : 'bg-white text-[#6E5E63] border border-[#EFEBEA] hover:bg-[#F5EFF2]'" class="px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all shadow-sm">INDEPENDENCE</button>
+    </div>
+
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <template x-for="lesson in filteredLessons" :key="lesson.id">
+            <div class="bg-white rounded-3xl p-6 border border-[#EFEBEA] shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
+                <div>
+                    <div class="flex justify-between items-center mb-4">
+                        <span class="text-[10px] font-bold uppercase tracking-wider px-3 py-1 bg-[#F5EFF2] text-[#3D1E28] rounded-full" x-text="lesson.category"></span>
+                        <span class="text-xs text-[#8C7A7E] flex items-center gap-1">
+                            <i class="fa-regular fa-clock text-[10px]"></i> <span x-text="lesson.duration"></span>
+                        </span>
+                    </div>
+
+                    <h3 class="text-lg font-semibold text-[#3D1E28] mb-2 leading-snug" x-text="lesson.title"></h3>
+                    <p class="text-xs text-[#6E5E63] leading-relaxed" x-text="lesson.description"></p>
+                </div>
+
+                <div class="flex justify-between items-center mt-6 pt-4 border-t border-[#FAF8F8]">
+                    <button @click="openLesson(lesson)" class="text-xs font-medium text-[#3D1E28] hover:underline flex items-center gap-1">
+                        Read lesson
+                    </button>
+                    <button 
+                        @click="toggleComplete(lesson.id)" 
+                        :class="lesson.completed ? 'bg-[#E5DCDD] text-[#3D1E28]' : 'bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28]'"
+                        class="px-4 py-2 rounded-xl text-[11px] font-semibold tracking-wider uppercase transition flex items-center gap-1.5">
+                        <i class="fa-solid fa-check text-[10px]" x-show="lesson.completed"></i>
+                        <span x-text="lesson.completed ? 'COMPLETED' : 'MARK DONE'"></span>
+                    </button>
+                </div>
+            </div>
+        </template>
+    </div>
+
+    
+    <div x-show="activeModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+        <div @click.away="closeLesson()" class="bg-white rounded-3xl p-8 max-w-xl w-full shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
+            <button @click="closeLesson()" class="absolute top-6 right-6 text-[#8C7A7E] hover:text-[#3D1E28] transition">
+                <i class="fa-solid fa-xmark text-lg"></i>
+            </button>
+
+            <h2 class="text-2xl font-bold font-serif-display text-[#3D1E28] pr-6" x-text="selectedLesson?.title"></h2>
+
+            <div class="space-y-5 text-sm text-[#3A3335]">
+                <template x-for="(section, idx) in selectedLesson?.content" :key="idx">
+                    <div>
+                        <p class="text-[10px] font-bold uppercase tracking-widest text-[#8C7A7E] mb-1" x-text="section.heading"></p>
+                        <p class="text-xs text-[#524649] leading-relaxed" x-text="section.body"></p>
+                    </div>
+                </template>
+            </div>
+
+            <div class="pt-4">
+                <button @click="markDoneAndClose()" class="w-full bg-[#3D1E28] text-white py-3 rounded-2xl font-semibold text-xs tracking-wider uppercase hover:bg-[#522937] transition shadow-md">
+                    <span x-text="selectedLesson?.completed ? 'Close' : 'Mark as done'"></span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js" defer></script>
+
+<script>
+    function learnApp() {
+        return {
+            activeTab: 'ALL',
+            activeModal: false,
+            selectedLesson: null,
+            completedIds: JSON.parse(localStorage.getItem('hw_completed_lessons') || '[]'),
+            lessons: [
+                { id: 1, category: 'BUDGETING', duration: '5 min', title: 'The 50/30/20 rule, adapted for real life', description: 'A flexible starting frame for splitting income between needs, wants, and your future.', completed: false, content: [{ heading: 'THE IDEA', body: 'Split your take-home pay: 50% needs, 30% wants, 20% future.' }, { heading: 'ADAPTING IT', body: 'Shift ratios when rent is high (e.g., 60/20/20), but preserve the future bucket.' }, { heading: 'TRY THIS NOW', body: 'Audit last month\'s expenses in your budget tab.' }] },
+                { id: 2, category: 'SAVING', duration: '6 min', title: 'Your first emergency fund', description: 'Why three to six months of expenses is the single highest-return money move you can make.', completed: false, content: [{ heading: 'WHY IT MATTERS', body: 'An emergency fund provides safety during life transitions.' }, { heading: 'STEP-BY-STEP', body: 'Build $1,000 first, then expand to 3-6 months of expenses.' }] },
+                { id: 3, category: 'INVESTING', duration: '7 min', title: 'Compounding: the math that rewards starting early', description: 'How $200 a month becomes six figures — and what waiting five years actually costs you.', completed: false, content: [{ heading: 'THE POWER OF TIME', body: 'Compounding generates growth on previous returns. Time in the market is key.' }] },
+                { id: 4, category: 'INVESTING', duration: '6 min', title: 'Index funds, explained without jargon', description: 'What a fund actually is, why fees quietly matter, and how to judge one in two minutes.', completed: false, content: [{ heading: 'WHAT IS IT', body: 'Index funds bundle hundreds of broad market stocks into one investment.' }] },
+                { id: 5, category: 'INDEPENDENCE', duration: '8 min', title: 'Negotiating your salary with evidence', description: 'A script and a structure for asking, anchored in market data rather than apology.', completed: false, content: [{ heading: 'THE ASK', body: 'Present achievements and benchmarked data clearly without hedging.' }] },
+                { id: 6, category: 'INDEPENDENCE', duration: '5 min', title: 'Reading a paycheck and a benefits package', description: 'The lines on your payslip that are quietly worth thousands a year.', completed: false, content: [{ heading: 'MATCHING FUNDS', body: 'Always maximize company match programs before investing elsewhere.' }] },
+                { id: 7, category: 'BUDGETING', duration: '6 min', title: 'Debt payoff: avalanche vs snowball', description: 'One method is mathematically optimal, the other is psychologically optimal.', completed: false, content: [{ heading: 'STRATEGY', body: 'Avalanche targets interest rates; Snowball targets small balances for wins.' }] },
+                { id: 8, category: 'INDEPENDENCE', duration: '7 min', title: 'Investing through a career break', description: 'How to keep money growing during maternity leave, caregiving, or a deliberate pause.', completed: false, content: [{ heading: 'SPOUSAL IRA', body: 'Spouses can contribute on behalf of non-earning partners to maintain retirement momentum.' }] },
+                { id: 9, category: 'SAVING', duration: '4 min', title: 'Sinking funds: the antidote to \'unexpected\' expenses', description: 'Most surprise costs aren\'t surprises — they\'re annual costs you never divided by twelve.', completed: false, content: [{ heading: 'METHOD', body: 'Break annual expenses into 12 monthly set-asides.' }] },
+                { id: 10, category: 'BUDGETING', duration: '5 min', title: 'Subscription audit in fifteen minutes', description: 'The quietest leak in most budgets, and the fastest money you\'ll ever find.', completed: false, content: [{ heading: 'AUDIT', body: 'Review quarterly statements to eliminate unused recurring fees.' }] }
+            ],
+
+            init() {
+                this.lessons.forEach(l => {
+                    l.completed = this.completedIds.includes(l.id);
+                });
+            },
+
+            get filteredLessons() {
+                if (this.activeTab === 'ALL') return this.lessons;
+                return this.lessons.filter(l => l.category === this.activeTab);
+            },
+
+            get completedCount() {
+                return this.lessons.filter(l => l.completed).length;
+            },
+
+            toggleComplete(id) {
+                const lesson = this.lessons.find(l => l.id === id);
+                if (lesson) {
+                    lesson.completed = !lesson.completed;
+                    this.saveState();
+                }
+            },
+
+            openLesson(lesson) {
+                this.selectedLesson = lesson;
+                this.activeModal = true;
+            },
+
+            closeLesson() {
+                this.activeModal = false;
+                this.selectedLesson = null;
+            },
+
+            markDoneAndClose() {
+                if (this.selectedLesson) {
+                    this.selectedLesson.completed = true;
+                    this.saveState();
+                }
+                this.closeLesson();
+            },
+
+            saveState() {
+                const doneIds = this.lessons.filter(l => l.completed).map(l => l.id);
+                localStorage.setItem('hw_completed_lessons', JSON.stringify(doneIds));
+            }
+        }
+    }
+</script>
+{% endblock %}

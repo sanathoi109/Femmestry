@@ -30,23 +30,16 @@ class User(db.Model):
     __tablename__ = "users"
 
     id = db.Column(db.Integer, primary_key=True)
-    # Pseudonymous, cryptographically-random handle shown everywhere in
-    # the UI instead of a real name/email - this IS the login identifier.
     pseudo_id = db.Column(db.String(32), unique=True, nullable=False, index=True,
                            default=generate_pseudonymous_id)
-    # A user-chosen display nickname (never validated against real identity)
     display_name = db.Column(db.String(40), nullable=False, default="Anonymous")
     password_hash = db.Column(db.String(255), nullable=False)  # Argon2id hash
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
-    # Gamification
     streak_days = db.Column(db.Integer, default=0)
     last_activity_date = db.Column(db.Date, default=None)
     xp_points = db.Column(db.Integer, default=0)
 
-    # Life-stage inputs used by the Gap-Adjusted Wealth Engine.
-    # These are financial-planning parameters, not identity data, but we
-    # still avoid storing anything more specific than necessary.
     monthly_income = db.Column(db.Float, default=0.0)
     career_break_months = db.Column(db.Integer, default=0)
 
@@ -173,12 +166,10 @@ class Flashcard(db.Model):
     order_index = db.Column(db.Integer, default=0)
     front_text = db.Column(db.String(200), nullable=False)
     explanation = db.Column(db.String(400), nullable=False)
-    correct_swipe = db.Column(db.String(5), nullable=False)  # 'right' or 'left'
+    correct_swipe = db.Column(db.String(5), nullable=False)  
     quiz_question = db.Column(db.String(200), nullable=False)
-    quiz_options = db.Column(db.Text, nullable=False)  # comma-separated
+    quiz_options = db.Column(db.Text, nullable=False)  
     quiz_answer = db.Column(db.String(100), nullable=False)
-    # Keywords the Teach-Back grader looks for when a user explains this
-    # concept back in their own words.
     teach_back_keywords = db.Column(db.Text, default="")
 
 
@@ -220,5 +211,4 @@ class CommunityPost(db.Model):
 
     @property
     def anon_label(self):
-        # Deterministic-but-unlinkable display label (id-based, not user-based)
         return f"Anonymous Saver #{(self.id * 37) % 900 + 100}"

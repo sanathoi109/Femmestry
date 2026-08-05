@@ -1,70 +1,296 @@
-from flask import Flask, render_template, request, jsonify
+import os
+import json
+import secrets
+import base64
+from datetime import date
+import chromadb
+from chromadb.utils import embedding_functions
+from dotenv import load_dotenv
+from flask import Flask, render_template, request, jsonify, redirect, url_for, flash
+from groq import Groq
+load_dotenv()
 
 app = Flask(__name__)
-app.secret_key = 'herwealth_secret_key'
+app.secret_key = os.getenv("SECRET_KEY", "super-secret-femmestry-key")
 
-# Question bank mapped to concepts learned by the user
-QUESTION_BANK = [
-    {
-        "id": 1,
-        "question": "Anjali wants to send 5 lakhs to her brother for a house down payment immediately. Which transfer mode should she use?",
-        "options": ["UPI", "IMPS", "RTGS", "NEFT"],
-        "correct": 2,
-        "explanation": "RTGS is designed for high-value transactions above 2 lakhs and offers real-time fund settlement. Other methods like NEFT or IMPS often have lower transaction limits per day."
-    },
-    {
-        "id": 2,
-        "question": "Priya is starting her first investment journey and wants to buy a small piece of ownership in a large, established company. What is she purchasing?",
-        "options": ["A stock", "A fixed deposit", "A savings account", "A currency note"],
-        "correct": 0,
-        "explanation": "Buying a stock represents owning a fractional share of a company. Please remember that stock prices fluctuate based on market conditions, and there is always a risk of loss."
-    },
-    {
-        "id": 3,
-        "question": "Kavita wants to set aside money for an emergency fund that she can access immediately at any hour. Where should she keep it?",
-        "options": ["Real Estate", "Liquid Mutual Fund / High-Yield Savings", "Gold Jewelry", "5-Year Lock-in FD"],
-        "correct": 1,
-        "explanation": "Emergency funds require high liquidity. High-yield savings accounts or liquid funds allow instant access without lock-in penalties."
-    },
-    {
-        "id": 4,
-        "question": "Sneha receives a message asking for her UPI PIN to receive a prize reward of ₹10,000. What should she do?",
-        "options": ["Enter the PIN quickly", "Ignore/Block, UPI PIN is only required to send money", "Share PIN over phone", "Send ₹1 first"],
-        "correct": 1,
-        "explanation": "You NEVER need to enter your UPI PIN to receive money. Entering a PIN always deducts money from your bank account."
-    },
-    {
-        "id": 5,
-        "question": "Which financial tool helps track monthly expenses and prevents overspending?",
-        "options": ["Credit Card limit upgrade", "A monthly budget plan", "Personal Loan", "Crypto Trading"],
-        "correct": 1,
-        "explanation": "Creating a structured budget helps categorize needs, wants, and savings goals systematically before spending."
-    }
-]
+groq_api_key = os.getenv("GROQ_API_KEY")
+if not groq_api_key:
+    print("⚠️ Warning: GROQ_API_KEY is missing from your .env file!")
+
+groq_client = Groq(api_key=groq_api_key)
+
+chroma_client = chromadb.PersistentClient(path="./chroma_db")
+emb_fn = embedding_functions.DefaultEmbeddingFunction()
+
+collection = chroma_client.get_or_create_collection(
+    name="femmestry_curriculum",
+    embedding_function=emb_fn
+)
+
 
 @app.route('/')
 def home():
-    user_data = {
-        "display_name": "Anonymous Saver",
-        "user_id": "FEM-FTC333",
-        "streak_days": 0,
-        "savings_balance": 0,
-        "savings_goal": 50000,
-        "topics_learned": 0
-    }
-    return render_template('dashboard.html', user=user_data)
+    return render_template('index.html')
+
+
+@app.route('/overview')
+@app.route('/dashboard')
+def overview():
+    return render_template('overview.html')
+
+
+@app.route('/budget')
+def budget():
+    """Budget route to render the interactive budget template."""
+    return render_template('budget.html')
+
+
+@app.route('/savings')
+def savings():
+    return render_template('savings.html')
+
+
+@app.route('/learn')
+def learn():
+    return render_template('learn.html')
+
+
+@app.route('/coach')
+def coach():
+    return render_template('coach.html')
+
+
+@app.route('/play')
+def play():
+    return render_template('play.html')
+
 
 @app.route('/quiz')
 def quiz():
     return render_template('quiz.html')
 
-@app.route('/api/quiz/questions', methods=['GET'])
-def get_quiz_questions():
-    return jsonify({
-        "success": True,
-        "learned_topics_count": 5,
-        "questions": QUESTION_BANK
-    })
+
+@app.route('/circle')
+def circle():
+    return render_template('circle.html')
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        return redirect(url_for('overview'))
+
+    return render_template('login.html')
+
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    if request.method == 'POST':
+        nickname = request.form.get('nickname', 'Anonymous Saver').strip() or 'Anonymous Saver'
+        password = request.form.get('password')
+        random_suffix = secrets.token_hex(2).upper()
+        generated_id = f"FEM-FTC{random_suffix}"
+
+        print(f"Registered User: {nickname} | ID: {generated_id}")
+
+        flash(f"Welcome, {nickname}! Your anonymous ID is {generated_id}.", "success")
+
+        return redirect(url_for('overview'))
+
+    return render_template('register.html')
+
+
+@app.route('/scan-receipt', methods=['POST'])
+def scan_receipt():
+    """
+    Processes uploaded receipt images using Groq's Vision AI model.
+    Extracts itemized expenses, dates, and amounts in strict JSON format.
+    """
+    if 'receipt_image' not in request.files:
+        return jsonify({'error': 'No image file uploaded'}), 400
+
+    file = request.files['receipt_image']
+    if file.filename == '':
+        return jsonify({'error': 'No image selected'}), 400
+
+    try:
+        base64_image = base64.b64encode(file.read()).decode('utf-8')
+        today_str = date.today().strftime('%Y-%m-%d')
+
+        prompt = f"""
+        You are an intelligent financial receipt parser. 
+        Analyze this receipt/bill image and extract all individual line item expenses.
+
+        Categorize each item into EXACTLY ONE of these categories:
+        - Housing
+        - Food
+        - Fun
+        - Health
+        - Beauty
+        - Education
+        - Subscriptions
+        - Transport
+        - Other
+
+        Today's date default is "{today_str}".
+
+        Return ONLY a strictly valid JSON object structured like this:
+        {{
+            "items": [
+                {{
+                    "description": "Item or store name",
+                    "amount": 250.00,
+                    "category": "Food",
+                    "date": "YYYY-MM-DD"
+                }}
+            ]
+        }}
+
+        Rules:
+        1. "amount" must be a clean numeric float/int value (do not include currency symbols like ₹ or $).
+        2. Extract individual itemized purchases if listed clearly on the receipt.
+        3. If dates are not clearly visible on the receipt, use "{today_str}".
+        """
+
+        completion = groq_client.chat.completions.create(
+    model="qwen/qwen3.6-27b",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {
+                        "url": f"data:image/jpeg;base64,{base64_image}"
+                    },
+                },
+            ],
+        }
+    ],
+    temperature=0.2,
+    response_format={"type": "json_object"}
+)
+
+
+        raw_response = completion.choices[0].message.content.strip()
+        parsed_data = json.loads(raw_response)
+        items = parsed_data.get("items", [])
+
+        if not items:
+            return jsonify({'error': 'Could not extract valid transaction items from this receipt.'}), 400
+
+        return jsonify({
+            'success': True,
+            'items': items,
+            'message': f"Successfully parsed {len(items)} items!"
+        })
+
+    except Exception as e:
+        print(f"Error in /scan-receipt: {e}")
+        return jsonify({'error': f'Failed to process receipt image: {str(e)}'}), 500
+
+
+
+@app.route('/api/rag/explain', methods=['POST'])
+def rag_explain():
+    try:
+        data = request.json or {}
+        user_query = data.get('query', '').strip()
+        user_level = int(data.get('level', 5))
+
+        if not user_query:
+            return jsonify({
+                "success": False,
+                "error": "Query cannot be empty."
+            }), 400
+
+        results = collection.query(
+            query_texts=[user_query],
+            n_results=2,
+            where={"level": {"$lte": user_level}}
+        )
+
+        retrieved_docs = (
+            results['documents'][0]
+            if (results and results.get('documents') and results['documents'][0])
+            else []
+        )
+
+        context_text = (
+            "\n---\n".join(retrieved_docs)
+            if retrieved_docs
+            else "General Indian financial knowledge."
+        )
+
+        system_prompt = (
+            "You are 'Femmestry Money Coach', a supportive, empathetic financial mentor for women in India. "
+            "Your goal is to build financial confidence using clear, simple language, practical real-life examples, "
+            "and zero product pushing or judgement."
+        )
+
+        user_prompt = f"""
+Use the following verified educational context from official sources (RBI/SEBI/NISM) to explain the topic clearly.
+
+[VERIFIED CURRICULUM CONTEXT]
+{context_text}
+
+[USER QUESTION / DOUBT]
+{user_query}
+
+Formatting & Tone Guidelines:
+- Keep language simple, encouraging, and jargon-free.
+- Provide 1 relatable, practical example from daily Indian life.
+- Present a balanced perspective (explain both upsides and risks).
+- End with a gentle, empowering tip for financial confidence.
+"""
+
+        response = groq_client.chat.completions.create(
+    model="qwen/qwen3.6-27b",
+    messages=[
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": "Please analyze this bill and categorize the expense."},
+                {"type": "image_url", "image_url": {"url": "https://example.com/receipt.jpg"}}
+            ]
+        }
+    ],
+    temperature=0.3
+)
+
+
+        answer = response.choices[0].message.content
+
+        return jsonify({
+            "success": True,
+            "query": user_query,
+            "answer": answer,
+            "sources_found": len(retrieved_docs)
+        })
+
+    except Exception as e:
+        print(f"Error in /api/rag/explain: {e}")
+        return jsonify({
+            "success": False,
+            "error": str(e)
+        }), 500
+
+
+
+
+@app.route('/debug-routes')
+def debug_routes():
+    """
+    Visit /debug-routes in your browser to see all endpoints
+    currently registered in this running Flask app.
+    """
+    lines = []
+    for rule in app.url_map.iter_rules():
+        lines.append(f"{rule.endpoint} -> {rule}")
+    return "<br>".join(lines)
+
+
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(host='0.0.0.0', port=5000, debug=True)
