@@ -2,7 +2,7 @@
 {% block title %}HERWORTH - Overview{% endblock %}
 
 {% block content %}
-<!-- Top Header & Actions -->
+
 <div class="flex justify-between items-start mb-8">
     <div>
         <span class="text-xs font-bold tracking-[0.15em] text-[#A39296] uppercase">OVERVIEW</span>
@@ -11,13 +11,13 @@
     </div>
 
     <div class="flex items-center gap-3">
-        <!-- Edit Financial Data Button -->
+        
         <button onclick="openEditModal()" class="flex items-center gap-2 bg-[#3D1E28] text-white hover:bg-[#2B1B22] rounded-full px-4 py-2 text-xs font-semibold shadow-sm transition">
             <i class="fa-solid fa-pen text-[11px]"></i>
             <span>Edit Values</span>
         </button>
 
-        <!-- Currency Selector Dropdown -->
+        
         <div class="relative">
             <select id="currencySelect" onchange="updateCurrency()" class="appearance-none bg-white border border-[#EBE4E5] rounded-full px-4 py-2 pr-8 text-xs font-semibold text-[#4A3B40] shadow-sm cursor-pointer outline-none focus:border-[#3D1E28]">
                 <option value="INR" selected>₹ INR</option>
@@ -30,7 +30,7 @@
     </div>
 </div>
 
-<!-- Metric Stat Cards Grid -->
+
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
     <div class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm">
         <span class="text-[11px] font-bold tracking-[0.15em] text-[#A39296] uppercase">INCOME</span>
@@ -57,10 +57,10 @@
     </div>
 </div>
 
-<!-- Detailed Breakdown Grid -->
+
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    <!-- Where It Went Breakdown (Donut Chart) -->
+    
     <div class="lg:col-span-5 bg-white border border-[#F0EAEB] rounded-3xl p-7 shadow-sm flex flex-col justify-between">
         <div>
             <span class="text-[11px] font-bold tracking-[0.15em] text-[#A39296] uppercase block mb-6">WHERE IT WENT</span>
@@ -116,10 +116,10 @@
         </div>
     </div>
 
-    <!-- Right Column Cards -->
+    
     <div class="lg:col-span-7 space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <!-- Dynamic Safety Net Card -->
+            
             <div class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
                 <div>
                     <span class="text-[11px] font-bold tracking-[0.15em] text-[#A39296] uppercase">SAFETY NET</span>
@@ -136,7 +136,7 @@
                 </div>
             </div>
 
-            <!-- Login Streak Card -->
+            
             <div class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
                 <div>
                     <span class="text-[11px] font-bold tracking-[0.15em] text-[#A39296] uppercase">LOGIN STREAK</span>
@@ -158,7 +158,6 @@
             </div>
         </div>
 
-        <!-- Learning Hub Card -->
         <div class="bg-white border border-[#F0EAEB] rounded-3xl p-7 shadow-sm">
             <span class="text-[11px] font-bold tracking-[0.15em] text-[#A39296] uppercase">LEARNING HUB</span>
             <div class="text-3xl font-bold text-[#3D1E28] font-serif-display mt-3">0</div>
@@ -177,7 +176,7 @@
     </div>
 </div>
 
-<!-- Edit Values Modal Pop-up -->
+
 <div id="editModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
     <div class="bg-white rounded-3xl p-8 w-full max-w-md border border-[#F0EAEB] shadow-xl">
         <h3 class="text-2xl font-bold text-[#3D1E28] font-serif-display mb-1">Set Your Finances</h3>
@@ -213,7 +212,7 @@
 <script>
     const symbols = { 'INR': '₹', 'USD': '$', 'EUR': '€', 'GBP': '£' };
 
-    // Default Values (if user hasn't set any yet)
+    
     let finData = JSON.parse(localStorage.getItem('herworth_finances')) || {
         income: 7100,
         expenses: 3484,
@@ -228,17 +227,17 @@
         document.getElementById('displaySavings').innerText = Number(finData.savings).toLocaleString();
         document.getElementById('displayPortfolio').innerText = Number(finData.portfolio).toLocaleString();
 
-        // Safety Net Calculations (Target 6 Months)
+
         const months = finData.expenses > 0 ? (finData.savings / finData.expenses).toFixed(1) : 0;
         document.getElementById('safetyMonths').innerText = months;
         document.getElementById('safetySavingsText').innerText = Number(finData.savings).toLocaleString();
         document.getElementById('safetyExpText').innerText = Number(finData.expenses).toLocaleString();
         
-        // Progress Bar (Percentage towards 6 months)
+        
         const targetPercent = Math.min((months / 6) * 100, 100);
         document.getElementById('safetyBar').style.width = targetPercent + '%';
 
-        // Set Selected Currency Dropdown & Symbols
+        
         document.getElementById('currencySelect').value = finData.currency;
         updateCurrencySymbols(finData.currency);
     }
@@ -279,7 +278,7 @@
         closeEditModal();
     }
 
-    // Initialize Chart
+    
     const ctx = document.getElementById('expenseChart').getContext('2d');
     new Chart(ctx, {
         type: 'doughnut',
@@ -299,7 +298,7 @@
         }
     });
 
-    // Run on Load
+
     renderDashboard();
 </script>
 {% endblock %}

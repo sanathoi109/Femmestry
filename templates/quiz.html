@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 
 {% block content %}
-<!-- Dedicated Quiz Stylesheet -->
+
 <link rel="stylesheet" href="{{ url_for('static', filename='css/quiz.css') }}">
 
 <div class="quiz-container">
@@ -10,17 +10,17 @@
         <p>Real-life situations, written fresh from what you've already learned.</p>
     </div>
 
-    <!-- Main Quiz Card Wrapper -->
+    
     <div class="quiz-card" id="quizCard">
         
-        <!-- State 1: Start Quiz View -->
+        
         <div id="startState" class="quiz-state-box">
             <h2>Scenario quiz</h2>
             <p class="sub-text">Fresh questions, built from the <span id="topicCount">5</span> topics you've marked as learned.</p>
             <button id="startQuizBtn" class="btn-dark-pill">Start quiz</button>
         </div>
 
-        <!-- State 2: Loading / Writing View -->
+        
         <div id="loadingState" class="quiz-state-box hidden">
             <h2>Scenario quiz</h2>
             <p class="sub-text">Fresh questions, built from the <span id="loadingTopicCount">5</span> topics you've marked as learned.</p>
@@ -30,22 +30,22 @@
             </button>
         </div>
 
-        <!-- State 3: Active Question View -->
+        
         <div id="questionState" class="quiz-state-box question-layout hidden">
             <div class="question-meta">QUESTION <span id="currentQNum">1</span> OF <span id="totalQNum">5</span></div>
             <div class="question-text" id="questionText"></div>
 
-            <!-- Options Container -->
+        
             <div class="options-list" id="optionsContainer"></div>
 
-            <!-- Explanation & Action Button Box -->
+            
             <div class="explanation-box hidden" id="explanationBox">
                 <p id="explanationText"></p>
                 <button class="btn-next" id="nextBtn">Next</button>
             </div>
         </div>
 
-        <!-- State 4: Quiz Completed Summary View -->
+        
         <div id="completedState" class="quiz-state-box hidden">
             <h2 class="score-display"><span id="finalScore">0</span>/<span id="finalTotal">5</span></h2>
             <p class="sub-text">Solid progress. Revisit the cards you slipped on and try again.</p>

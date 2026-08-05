@@ -2,7 +2,6 @@
 {% block title %}HERWORTH - Savings{% endblock %}
 
 {% block content %}
-<!-- Page Header -->
 <div class="mb-8">
     <h2 class="text-4xl font-bold text-[#2B1B22] font-serif-display">The things you're building toward</h2>
     <p class="text-sm text-[#8C7A7E] mt-2">
@@ -12,16 +11,16 @@
     </p>
 </div>
 
-<!-- Goal Creation Card -->
+
 <div class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm mb-8">
     <form onsubmit="createGoal(event)" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-end">
-        <!-- Goal Name -->
+        
         <div class="md:col-span-3">
             <label class="block text-[10px] font-bold text-[#A39296] tracking-wider uppercase mb-1">GOAL</label>
             <input type="text" id="goalName" required placeholder="Emergency fund" class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-4 py-3 text-xs font-medium outline-none focus:border-[#3D1E28]">
         </div>
 
-        <!-- Purpose Category -->
+    
         <div class="md:col-span-3">
             <label class="block text-[10px] font-bold text-[#A39296] tracking-wider uppercase mb-1">PURPOSE</label>
             <select id="goalPurpose" class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-4 py-3 text-xs font-medium outline-none focus:border-[#3D1E28] text-[#4A3B40]">
@@ -33,13 +32,13 @@
             </select>
         </div>
 
-        <!-- Target Amount -->
+        
         <div class="md:col-span-3">
             <label class="block text-[10px] font-bold text-[#A39296] tracking-wider uppercase mb-1">TARGET</label>
             <input type="number" id="goalTarget" required placeholder="10000" class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-4 py-3 text-xs font-medium outline-none focus:border-[#3D1E28]">
         </div>
 
-        <!-- By Date -->
+        
         <div class="md:col-span-3">
             <label class="block text-[10px] font-bold text-[#A39296] tracking-wider uppercase mb-1">BY DATE</label>
             <input type="date" id="goalDate" required class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-3 py-3 text-xs font-medium outline-none focus:border-[#3D1E28]">
@@ -53,12 +52,11 @@
     </form>
 </div>
 
-<!-- Goals Grid Container -->
+
 <div id="goalsContainer" class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-12">
-    <!-- Rendered dynamically by JavaScript -->
+    
 </div>
 
-<!-- Manage Goal Modal -->
 <div id="manageModal" class="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl relative">
         <button onclick="closeManageModal()" class="absolute top-6 right-6 text-gray-400 hover:text-gray-600 text-xl">
@@ -73,7 +71,7 @@
                 <input type="number" id="manageAmount" placeholder="500" class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-4 py-3 text-sm font-medium outline-none focus:border-[#3D1E28]">
             </div>
 
-            <!-- Transaction Type Selector -->
+            
             <div class="flex gap-3 pt-2">
                 <button type="button" id="typeDeposit" onclick="setManageType('DEPOSIT')" class="flex-1 py-3 rounded-2xl text-xs font-bold transition bg-[#3D1E28] text-white">
                     DEPOSIT
@@ -90,7 +88,6 @@
     </div>
 </div>
 
-<!-- Contribution History Side Panel Drawer -->
 <div id="sidePanel" class="fixed inset-y-0 right-0 w-80 bg-white shadow-2xl z-50 transform translate-x-full transition-transform duration-300 ease-in-out border-l border-[#F0EAEB] p-6 flex flex-col justify-between">
     <div>
         <div class="flex items-center justify-between pb-6 border-b border-[#F0EAEB] mb-6">
@@ -101,13 +98,13 @@
         </div>
 
         <div id="historyList" class="space-y-4 max-h-[calc(100vh-140px)] overflow-y-auto pr-1">
-            <!-- Rendered dynamically -->
+
         </div>
     </div>
 </div>
 
 <script>
-    // Initial Default Data
+
     const defaultGoals = [
         {
             id: 101,
@@ -151,7 +148,7 @@
         container.innerHTML = goals.map(goal => {
             const pct = Math.min(100, Math.round((goal.saved / goal.target) * 100)) || 0;
             
-            // Calculate monthly required amount
+        
             const monthsLeft = calculateMonthsLeft(goal.byDate);
             const remaining = Math.max(0, goal.target - goal.saved);
             const monthlyNeed = monthsLeft > 0 ? Math.round(remaining / monthsLeft) : remaining;
@@ -230,7 +227,7 @@
         goals.unshift(newGoal);
         saveAndSync();
         
-        // Reset form inputs
+        
         document.getElementById('goalName').value = '';
         document.getElementById('goalTarget').value = '';
     }
