@@ -5,7 +5,7 @@
 {% block content %}
 <div class="space-y-8" x-data="learnApp()">
 
-    <!-- Header Section -->
+
     <div>
         <p class="text-xs uppercase tracking-widest text-[#8C7A7E] font-semibold mb-1">LEARN</p>
         <h1 class="text-4xl font-bold font-serif-display text-[#3D1E28]">Money knowledge, in small doses</h1>
@@ -14,7 +14,7 @@
         </p>
     </div>
 
-    <!-- Category Filter Pills -->
+    
     <div class="flex flex-wrap gap-3">
         <button @click="activeTab = 'ALL'" :class="activeTab === 'ALL' ? 'bg-[#3D1E28] text-white' : 'bg-white text-[#6E5E63] border border-[#EFEBEA] hover:bg-[#F5EFF2]'" class="px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all shadow-sm">ALL</button>
         <button @click="activeTab = 'BUDGETING'" :class="activeTab === 'BUDGETING' ? 'bg-[#3D1E28] text-white' : 'bg-white text-[#6E5E63] border border-[#EFEBEA] hover:bg-[#F5EFF2]'" class="px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all shadow-sm">BUDGETING</button>
@@ -23,7 +23,7 @@
         <button @click="activeTab = 'INDEPENDENCE'" :class="activeTab === 'INDEPENDENCE' ? 'bg-[#3D1E28] text-white' : 'bg-white text-[#6E5E63] border border-[#EFEBEA] hover:bg-[#F5EFF2]'" class="px-5 py-2 rounded-full text-xs font-semibold uppercase tracking-wider transition-all shadow-sm">INDEPENDENCE</button>
     </div>
 
-    <!-- Lessons Grid -->
+    
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         <template x-for="lesson in filteredLessons" :key="lesson.id">
             <div class="bg-white rounded-3xl p-6 border border-[#EFEBEA] shadow-sm flex flex-col justify-between hover:shadow-md transition-shadow">
@@ -55,7 +55,7 @@
         </template>
     </div>
 
-    <!-- Reading Modal Pop-Up -->
+    
     <div x-show="activeModal" x-cloak class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
         <div @click.away="closeLesson()" class="bg-white rounded-3xl p-8 max-w-xl w-full shadow-2xl relative space-y-6 max-h-[90vh] overflow-y-auto">
             <button @click="closeLesson()" class="absolute top-6 right-6 text-[#8C7A7E] hover:text-[#3D1E28] transition">
