@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Femmestry - Your Money Coach</title>
-    <!-- Tailwind CSS for styling -->
+    
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <style>
@@ -13,18 +13,18 @@
 </head>
 <body class="min-h-screen flex flex-col justify-between p-6">
 
-    <!-- Header Section -->
+    
     <div class="max-w-4xl mx-auto w-full mb-4">
         <h1 class="text-3xl font-bold text-slate-800">Your money coach</h1>
         <p class="text-slate-500 text-sm mt-1">Balanced answers, no product pushing, no judgement. Chats aren't stored or shared.</p>
     </div>
 
-    <!-- Main Chat Box Container -->
+    
     <div class="max-w-4xl mx-auto w-full bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex-1 flex flex-col justify-between min-h-[500px]">
         
-        <!-- Chat Messages Window -->
+        
         <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 pr-2 max-h-[420px]">
-            <!-- Initial Coach Greeting Message -->
+            
             <div class="flex items-start gap-3">
                 <div class="bg-indigo-50 text-slate-700 p-4 rounded-2xl max-w-xl text-sm leading-relaxed">
                     Hi. Ask me anything about money — no question is too basic, and I'll always give you the full picture, upsides and risks both.
@@ -32,7 +32,7 @@
             </div>
         </div>
 
-        <!-- Dynamic Suggested Prompts (Pills) -->
+        
         <div class="mt-4 pt-4 border-t border-slate-50">
             <div id="quick-pills" class="flex flex-wrap gap-2 mb-3">
                 <button onclick="usePrompt('What\'s the difference between NEFT and IMPS?')" class="text-xs bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 px-3 py-2 rounded-full transition">
@@ -46,7 +46,7 @@
                 </button>
             </div>
 
-            <!-- Input Box and Send Button -->
+        
             <form id="chat-form" onsubmit="sendMessage(event)" class="relative flex items-center">
                 <input 
                     type="text" 
@@ -64,7 +64,7 @@
         </div>
     </div>
 
-    <!-- JavaScript Chat Logic -->
+    
     <script>
         function usePrompt(text) {
             document.getElementById('user-input').value = text;
@@ -79,7 +79,7 @@
 
             if (!query) return;
 
-            // 1. Append User Message
+            
             const userBubble = `
                 <div class="flex justify-end">
                     <div class="bg-slate-900 text-white p-4 rounded-2xl max-w-xl text-sm leading-relaxed">
@@ -91,7 +91,7 @@
             inputField.value = '';
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
-            // 2. Append Loading Skeleton
+            
             const loadingId = 'loading-' + Date.now();
             const loadingBubble = `
                 <div id="${loadingId}" class="flex items-start gap-3">
@@ -104,7 +104,7 @@
             chatMessages.scrollTop = chatMessages.scrollHeight;
 
             try {
-                // 3. Call Flask Backend RAG Endpoint
+            
                 const response = await fetch('/api/rag/explain', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
@@ -115,7 +115,7 @@
                 document.getElementById(loadingId).remove();
 
                 if (data.success) {
-                    // Render AI Coach Response
+                    
                     const coachBubble = `
                         <div class="flex items-start gap-3">
                             <div class="bg-indigo-50 text-slate-800 p-4 rounded-2xl max-w-xl text-sm leading-relaxed whitespace-pre-line">
