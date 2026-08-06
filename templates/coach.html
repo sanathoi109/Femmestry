@@ -16,7 +16,9 @@
     
     <div class="max-w-4xl mx-auto w-full mb-4">
         <h1 class="text-3xl font-bold text-slate-800">Your money coach</h1>
-        <p class="text-slate-500 text-sm mt-1">Balanced answers, no product pushing, no judgement. Chats aren't stored or shared.</p>
+        <p class="text-slate-500 text-sm mt-1">
+            Balanced answers, no product pushing, no judgement. Chats aren't stored or shared.
+        </p>
     </div>
 
     
@@ -35,7 +37,7 @@
         
         <div class="mt-4 pt-4 border-t border-slate-50">
             <div id="quick-pills" class="flex flex-wrap gap-2 mb-3">
-                <button onclick="usePrompt('What\'s the difference between NEFT and IMPS?')" class="text-xs bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 px-3 py-2 rounded-full transition">
+                <button onclick="usePrompt('What\\'s the difference between NEFT and IMPS?')" class="text-xs bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 px-3 py-2 rounded-full transition">
                     What's the difference between NEFT and IMPS?
                 </button>
                 <button onclick="usePrompt('Is an FD better than a SIP for me?')" class="text-xs bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 px-3 py-2 rounded-full transition">
@@ -71,6 +73,15 @@
             sendMessage(new Event('submit'));
         }
 
+        function escapeHtml(str) {
+            return str
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
         async function sendMessage(e) {
             e.preventDefault();
             const inputField = document.getElementById('user-input');
@@ -83,7 +94,7 @@
             const userBubble = `
                 <div class="flex justify-end">
                     <div class="bg-slate-900 text-white p-4 rounded-2xl max-w-xl text-sm leading-relaxed">
-                        ${query}
+                        ${escapeHtml(query)}
                     </div>
                 </div>
             `;
@@ -115,11 +126,13 @@
                 document.getElementById(loadingId).remove();
 
                 if (data.success) {
-                    
+
+                    const answerText = data.answer || '';
+            f43efe8 (Fix model clash: use Qwen for receipts and Llama for coach tab)
                     const coachBubble = `
                         <div class="flex items-start gap-3">
                             <div class="bg-indigo-50 text-slate-800 p-4 rounded-2xl max-w-xl text-sm leading-relaxed whitespace-pre-line">
-                                ${data.answer}
+                                ${escapeHtml(answerText)}
                             </div>
                         </div>
                     `;
@@ -128,7 +141,7 @@
                     alert('Error getting response: ' + data.error);
                 }
             } catch (err) {
-                document.getElementById(loadingId).remove();
+                document.getElementById(loadingId)?.remove();
                 alert('Could not connect to the server.');
             }
 
