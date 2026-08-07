@@ -1,152 +1,259 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Femmestry - Your Money Coach</title>
-    
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
-    <style>
-        body { background-color: #f8f6fc; font-family: 'Inter', sans-serif; }
-    </style>
-</head>
-<body class="min-h-screen flex flex-col justify-between p-6">
+{% extends "base.html" %}
+{% block title %}HERWORTH - Coach{% endblock %}
 
-    
-    <div class="max-w-4xl mx-auto w-full mb-4">
-        <h1 class="text-3xl font-bold text-slate-800">Your money coach</h1>
-        <p class="text-slate-500 text-sm mt-1">
-            Balanced answers, no product pushing, no judgement. Chats aren't stored or shared.
-        </p>
-    </div>
+{% block content %}
+<!-- Top Header Banner -->
+<div class="mb-8">
+    <span class="text-xs font-bold tracking-[0.15em] text-[#A39296] uppercase">YOUR AI MONEY COACH</span>
+    <h2 class="text-4xl font-bold text-[#2B1B22] font-serif-display mt-2">Ask anything, or decode the news</h2>
+    <p class="text-sm text-[#8C7A7E] mt-2">
+        Plain-English answers grounded in financial basics, tailored to your goal.
+    </p>
+</div>
 
-    
-    <div class="max-w-4xl mx-auto w-full bg-white rounded-3xl p-6 shadow-sm border border-slate-100 flex-1 flex flex-col justify-between min-h-[500px]">
-        
-        
-        <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 pr-2 max-h-[420px]">
-            
-            <div class="flex items-start gap-3">
-                <div class="bg-indigo-50 text-slate-700 p-4 rounded-2xl max-w-xl text-sm leading-relaxed">
-                    Hi. Ask me anything about money — no question is too basic, and I'll always give you the full picture, upsides and risks both.
-                </div>
-            </div>
-        </div>
+<!-- Sub-Tab Controls -->
+<div class="flex gap-3 mb-6">
+    <button id="tabBtnChat" onclick="switchCoachTab('chat')" 
+        class="px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white flex items-center gap-2">
+        <i class="fa-regular fa-comments"></i>
+        <span>Chat</span>
+    </button>
+    <button id="tabBtnTranslate" onclick="switchCoachTab('translate')" 
+        class="px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28] flex items-center gap-2">
+        <i class="fa-solid fa-[#3D1E28] fa-language"></i>
+        <span>Translate News</span>
+    </button>
+</div>
 
-        
-        <div class="mt-4 pt-4 border-t border-slate-50">
-            <div id="quick-pills" class="flex flex-wrap gap-2 mb-3">
-                <button onclick="usePrompt('What\\'s the difference between NEFT and IMPS?')" class="text-xs bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 px-3 py-2 rounded-full transition">
-                    What's the difference between NEFT and IMPS?
-                </button>
-                <button onclick="usePrompt('Is an FD better than a SIP for me?')" class="text-xs bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 px-3 py-2 rounded-full transition">
-                    Is an FD better than a SIP for me?
-                </button>
-                <button onclick="usePrompt('How do I start an emergency fund?')" class="text-xs bg-slate-50 hover:bg-slate-100 text-slate-600 border border-slate-200 px-3 py-2 rounded-full transition">
-                    How do I start an emergency fund?
-                </button>
-            </div>
-
-        
-            <form id="chat-form" onsubmit="sendMessage(event)" class="relative flex items-center">
-                <input 
-                    type="text" 
-                    id="user-input" 
-                    placeholder="Ask your doubt..." 
-                    required
-                    class="w-full bg-white border border-slate-800 rounded-full py-3.5 pl-5 pr-14 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 shadow-sm"
-                />
-                <button 
-                    type="submit" 
-                    class="absolute right-2 bg-slate-900 text-white w-9 h-9 rounded-full flex items-center justify-center hover:bg-slate-800 transition">
-                    <i class="fa-solid fa-paper-plane text-xs"></i>
-                </button>
-            </form>
+<!-- ==================== VIEW 1: CHAT MODE ==================== -->
+<div id="viewChat" class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm flex flex-col justify-between min-h-[500px]">
+    <!-- Messages Container -->
+    <div id="chatMessages" class="space-y-4 mb-6 max-h-[420px] overflow-y-auto pr-2">
+        <div class="bg-[#FAF8F8] border border-[#EBE4E5] p-4 rounded-2xl max-w-xl text-xs text-[#2B1B22] leading-relaxed">
+            Hi! Ask me anything about money — no question is too basic. I'll give you clear answers with upsides and risks included.
         </div>
     </div>
 
-    
-    <script>
-        function usePrompt(text) {
-            document.getElementById('user-input').value = text;
-            sendMessage(new Event('submit'));
+    <!-- Quick Prompts & Input Form -->
+    <div class="space-y-3 pt-2 border-t border-[#F0EAEB]">
+        <div class="flex flex-wrap gap-2">
+            <button onclick="usePrompt('What is the difference between NEFT and IMPS?')" 
+                class="px-3 py-1.5 bg-[#FAF8F8] hover:bg-[#F5EFF2] border border-[#EBE4E5] text-[#3D1E28] text-[11px] rounded-full transition">
+                What's the difference between NEFT and IMPS?
+            </button>
+            <button onclick="usePrompt('Is an FD better than a SIP for me?')" 
+                class="px-3 py-1.5 bg-[#FAF8F8] hover:bg-[#F5EFF2] border border-[#EBE4E5] text-[#3D1E28] text-[11px] rounded-full transition">
+                Is an FD better than a SIP for me?
+            </button>
+            <button onclick="usePrompt('How do I start an emergency fund with ₹1000?')" 
+                class="px-3 py-1.5 bg-[#FAF8F8] hover:bg-[#F5EFF2] border border-[#EBE4E5] text-[#3D1E28] text-[11px] rounded-full transition">
+                How do I start an emergency fund?
+            </button>
+        </div>
+
+        <form onsubmit="sendChatMessage(event)" class="relative flex items-center">
+            <input type="text" id="chatInput" placeholder="Ask your doubt..." required
+                class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl pl-4 pr-12 py-3.5 text-xs font-medium outline-none focus:border-[#3D1E28]">
+            <button type="submit" 
+                class="absolute right-2 bg-[#3D1E28] hover:bg-[#2B1B22] text-white w-9 h-9 rounded-xl flex items-center justify-center transition shadow-sm">
+                <i class="fa-solid fa-paper-plane text-xs"></i>
+            </button>
+        </form>
+    </div>
+</div>
+
+<!-- ==================== VIEW 2: TRANSLATE MODE ==================== -->
+<div id="viewTranslate" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <!-- Left Input Column -->
+    <div class="lg:col-span-5 bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
+        <div>
+            <span class="text-[10px] font-bold tracking-[0.15em] text-[#A39296] uppercase">HEADLINE OR STORY</span>
+            <textarea id="newsInput" rows="5" placeholder="Paste a financial news headline or article snippet here..."
+                class="w-full mt-2 bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl p-4 text-xs font-medium outline-none focus:border-[#3D1E28] resize-none"></textarea>
+
+            <span class="text-[10px] font-bold tracking-[0.15em] text-[#A39296] uppercase mt-5 block">EXPLAIN IT FOR...</span>
+            <div class="flex flex-wrap gap-2 mt-2" id="personaContainer">
+                <button type="button" onclick="selectPersona(this, 'Explain like I\'m 18')" 
+                    class="persona-btn px-4 py-2 rounded-full text-xs font-semibold bg-[#FAF8F8] text-[#8C7A7E] border border-[#EBE4E5]">
+                    Explain like I'm 18
+                </button>
+                <button type="button" onclick="selectPersona(this, 'I\'m new to investing')" 
+                    class="persona-btn active-persona px-4 py-2 rounded-full text-xs font-semibold bg-[#3D1E28] text-white border border-[#3D1E28]">
+                    I'm new to investing
+                </button>
+                <button type="button" onclick="selectPersona(this, 'I\'m building wealth')" 
+                    class="persona-btn px-4 py-2 rounded-full text-xs font-semibold bg-[#FAF8F8] text-[#8C7A7E] border border-[#EBE4E5]">
+                    I'm building wealth
+                </button>
+            </div>
+        </div>
+
+        <button type="button" onclick="translateNews()" id="btnTranslate" 
+            class="w-full mt-6 bg-[#3D1E28] hover:bg-[#2B1B22] text-white py-3.5 rounded-2xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-sm">
+            <i class="fa-solid fa-wand-magic-sparkles"></i>
+            <span>Translate with AI</span>
+        </button>
+    </div>
+
+    <!-- Right Output Column -->
+    <div class="lg:col-span-7 bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm min-h-[420px] flex flex-col justify-between">
+        <div id="translateEmptyState" class="h-full flex flex-col items-center justify-center text-center py-12">
+            <i class="fa-solid fa-newspaper text-3xl text-[#A39296] mb-3"></i>
+            <p class="text-xs font-semibold text-[#8C7A7E]">Enter a headline on the left and click "Translate with AI" to generate a simple breakdown.</p>
+        </div>
+
+        <!-- Populated Output State -->
+        <div id="translateResult" class="hidden space-y-4 text-xs text-[#2B1B22]">
+            <div>
+                <span id="badgePersona" class="bg-[#F5EFF2] text-[#3D1E28] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
+                    AI Translation · I'm new to investing
+                </span>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-[#3D1E28] text-sm">What happened</h4>
+                <p id="outHappened" class="mt-1 text-[#4A3B40] leading-relaxed"></p>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-[#3D1E28] text-sm">Why it matters for you</h4>
+                <p id="outMatters" class="mt-1 text-[#4A3B40] leading-relaxed"></p>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-[#3D1E28] text-sm">Terms decoded</h4>
+                <p id="outTerms" class="mt-1 text-[#4A3B40] leading-relaxed"></p>
+            </div>
+
+            <div>
+                <h4 class="font-bold text-[#3D1E28] text-sm">One thing to watch</h4>
+                <p id="outWatch" class="mt-1 text-[#4A3B40] leading-relaxed"></p>
+            </div>
+
+            <!-- RAG Sources Bar -->
+            <div class="pt-4 border-t border-[#F0EAEB] flex flex-wrap items-center gap-2">
+                <span class="text-[10px] font-bold text-[#A39296] uppercase tracking-wider">RAG:</span>
+                <div id="ragPills" class="flex flex-wrap gap-1.5">
+                    <!-- Dynamic Pills -->
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let activePersona = "I'm new to investing";
+
+    function switchCoachTab(tab) {
+        const btnChat = document.getElementById('tabBtnChat');
+        const btnTrans = document.getElementById('tabBtnTranslate');
+        const viewChat = document.getElementById('viewChat');
+        const viewTranslate = document.getElementById('viewTranslate');
+
+        if (tab === 'chat') {
+            btnChat.className = "px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white flex items-center gap-2";
+            btnTrans.className = "px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28] flex items-center gap-2";
+            viewChat.classList.remove('hidden');
+            viewTranslate.classList.add('hidden');
+        } else {
+            btnTrans.className = "px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white flex items-center gap-2";
+            btnChat.className = "px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28] flex items-center gap-2";
+            viewTranslate.classList.remove('hidden');
+            viewChat.classList.add('hidden');
         }
+    }
 
-        function escapeHtml(str) {
-            return str
-                .replace(/&/g, "&amp;")
-                .replace(/</g, "&lt;")
-                .replace(/>/g, "&gt;")
-                .replace(/"/g, "&quot;")
-                .replace(/'/g, "&#039;");
-        }
+    function selectPersona(btn, persona) {
+        document.querySelectorAll('.persona-btn').forEach(b => {
+            b.className = "persona-btn px-4 py-2 rounded-full text-xs font-semibold bg-[#FAF8F8] text-[#8C7A7E] border border-[#EBE4E5]";
+        });
+        btn.className = "persona-btn active-persona px-4 py-2 rounded-full text-xs font-semibold bg-[#3D1E28] text-white border border-[#3D1E28]";
+        activePersona = persona;
+    }
 
-        async function sendMessage(e) {
-            e.preventDefault();
-            const inputField = document.getElementById('user-input');
-            const chatMessages = document.getElementById('chat-messages');
-            const query = inputField.value.trim();
+    function usePrompt(txt) {
+        document.getElementById('chatInput').value = txt;
+    }
 
-            if (!query) return;
+    async function sendChatMessage(e) {
+        e.preventDefault();
+        const input = document.getElementById('chatInput');
+        const msg = input.value.trim();
+        if (!msg) return;
 
-            
-            const userBubble = `
-                <div class="flex justify-end">
-                    <div class="bg-slate-900 text-white p-4 rounded-2xl max-w-xl text-sm leading-relaxed">
-                        ${escapeHtml(query)}
+        const box = document.getElementById('chatMessages');
+        box.innerHTML += `
+            <div class="flex justify-end">
+                <div class="bg-[#3D1E28] text-white p-4 rounded-2xl max-w-xl text-xs leading-relaxed">
+                    ${msg}
+                </div>
+            </div>
+        `;
+
+        input.value = '';
+        box.scrollTop = box.scrollHeight;
+
+        try {
+            const res = await fetch('/api/coach/chat', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ prompt: msg })
+            });
+            const data = await res.json();
+
+            box.innerHTML += `
+                <div class="flex justify-start">
+                    <div class="bg-[#FAF8F8] border border-[#EBE4E5] p-4 rounded-2xl max-w-xl text-xs text-[#2B1B22] leading-relaxed">
+                        ${data.response || 'Sorry, I could not process that.'}
                     </div>
                 </div>
             `;
-            chatMessages.insertAdjacentHTML('beforeend', userBubble);
-            inputField.value = '';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            
-            const loadingId = 'loading-' + Date.now();
-            const loadingBubble = `
-                <div id="${loadingId}" class="flex items-start gap-3">
-                    <div class="bg-indigo-50 text-slate-500 p-4 rounded-2xl max-w-xl text-sm flex items-center gap-2">
-                        <i class="fa-solid fa-circle-notch fa-spin"></i> Coach is thinking...
-                    </div>
-                </div>
-            `;
-            chatMessages.insertAdjacentHTML('beforeend', loadingBubble);
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            try {
-            
-                const response = await fetch('/api/rag/explain', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: query, level: 5 })
-                });
-
-                const data = await response.json();
-                document.getElementById(loadingId).remove();
-
-                if (data.success) {
-
-                    const answerText = data.answer || '';
-            f43efe8 (Fix model clash: use Qwen for receipts and Llama for coach tab)
-                    const coachBubble = `
-                        <div class="flex items-start gap-3">
-                            <div class="bg-indigo-50 text-slate-800 p-4 rounded-2xl max-w-xl text-sm leading-relaxed whitespace-pre-line">
-                                ${escapeHtml(answerText)}
-                            </div>
-                        </div>
-                    `;
-                    chatMessages.insertAdjacentHTML('beforeend', coachBubble);
-                } else {
-                    alert('Error getting response: ' + data.error);
-                }
-            } catch (err) {
-                document.getElementById(loadingId)?.remove();
-                alert('Could not connect to the server.');
-            }
-
-            chatMessages.scrollTop = chatMessages.scrollHeight;
+            box.scrollTop = box.scrollHeight;
+        } catch (err) {
+            console.error(err);
         }
-    </script>
-</body>
-</html>
+    }
+
+    async function translateNews() {
+        const text = document.getElementById('newsInput').value.trim();
+        if (!text) return;
+
+        const btn = document.getElementById('btnTranslate');
+        btn.disabled = true;
+        btn.innerText = 'Translating...';
+
+        try {
+            const res = await fetch('/api/coach/translate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ news: text, persona: activePersona })
+            });
+            const data = await res.json();
+
+            document.getElementById('translateEmptyState').classList.add('hidden');
+            document.getElementById('translateResult').classList.remove('hidden');
+
+            document.getElementById('badgePersona').innerText = `AI Translation · ${activePersona}`;
+            document.getElementById('outHappened').innerText = data.what_happened || 'N/A';
+            document.getElementById('outMatters').innerText = data.why_it_matters || 'N/A';
+            document.getElementById('outTerms').innerText = data.terms_decoded || 'N/A';
+            document.getElementById('outWatch').innerText = data.one_thing_to_watch || 'N/A';
+
+            const ragContainer = document.getElementById('ragPills');
+            ragContainer.innerHTML = '';
+            (data.sources || ['Market Basics', 'Chroma Knowledge Base']).forEach(src => {
+                ragContainer.innerHTML += `
+                    <span class="bg-[#FAF8F8] border border-[#EBE4E5] text-[#8C7A7E] text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+                        ${src}
+                    </span>
+                `;
+            });
+        } catch (err) {
+            console.error(err);
+        } finally {
+            btn.disabled = false;
+            btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i><span>Translate with AI</span>`;
+        }
+    }
+</script>
+{% endblock %}
