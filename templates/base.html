@@ -5,12 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% block title %}HERWORTH - Money, Mastered{% endblock %}</title>
 
-    
+    <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     
-    
+    <!-- FontAwesome Icons -->
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     
+    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet">
 
     <style>
@@ -34,10 +35,10 @@
 </head>
 <body class="bg-[#FAF8F8] text-[#3A3335] min-h-screen flex font-sans antialiased selection:bg-[#3D1E28] selection:text-white">
 
-    
+    <!-- SIDEBAR NAVIGATION -->
     <aside class="w-64 bg-[#FAF8F8] border-r border-[#EFEBEA] flex flex-col justify-between p-6 shrink-0 min-h-screen sticky top-0 h-screen">
         <div>
-            
+            <!-- BRANDING HEADER -->
             <div class="mb-10 pl-2">
                 <a href="{{ url_for('overview') }}" class="group block">
                     <h1 class="text-xl font-bold tracking-[0.2em] text-[#3D1E28] font-serif-display group-hover:opacity-90 transition">HERWORTH</h1>
@@ -45,7 +46,7 @@
                 </a>
             </div>
 
-    
+            <!-- NAVIGATION LINKS -->
             <nav class="space-y-1 text-sm font-medium">
                 <a href="{{ url_for('overview') }}" class="flex items-center gap-3 px-4 py-3 rounded-2xl text-[#6E5E63] hover:bg-[#F5EFF2] hover:text-[#3D1E28] transition">
                     <i class="fa-solid fa-border-all text-sm w-5 text-center"></i>
@@ -74,6 +75,7 @@
             </nav>
         </div>
 
+        <!-- FOOTER / SIGN OUT -->
         <div class="pt-6 border-t border-[#EFEBEA] pl-2">
             <a href="{{ url_for('login') }}" class="flex items-center gap-3 text-sm font-medium text-[#6E5E63] hover:text-[#3D1E28] transition">
                 <i class="fa-solid fa-right-from-bracket text-sm"></i>
@@ -82,6 +84,7 @@
         </div>
     </aside>
 
+    <!-- MAIN CONTENT AREA -->
     <main class="flex-1 p-10 max-w-7xl mx-auto overflow-y-auto">
         {% block content %}{% endblock %}
     </main>

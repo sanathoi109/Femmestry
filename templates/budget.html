@@ -2,14 +2,10 @@
 {% block title %}HERWORTH - Budget{% endblock %}
 
 {% block content %}
-<<<<<<< HEAD
-
-=======
 <!-- CDN for Chart.js -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <!-- Top Header & Dynamic Summary -->
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
 <div class="mb-8">
     <span class="text-xs font-bold tracking-[0.15em] text-[#A39296] uppercase">BUDGET</span>
     <h2 class="text-4xl font-bold text-[#2B1B22] font-serif-display mt-2">Every dollar, accounted for</h2>
@@ -20,15 +16,8 @@
     </p>
 </div>
 
-<<<<<<< HEAD
-=======
 <!-- Entry Form Section -->
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
 <div class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm mb-8">
-<<<<<<< HEAD
-
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
     <div class="flex gap-2 mb-5">
         <button id="btnExpense" type="button" onclick="setType('EXPENSE')" class="px-5 py-2 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white">
             EXPENSE
@@ -37,97 +26,50 @@
             INCOME
         </button>
     </div>
-<<<<<<< HEAD
 
-    
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
     <form onsubmit="addEntry(event)" class="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
-<<<<<<< HEAD
-        
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
         <div class="md:col-span-4">
             <input type="text" id="entryDesc" required placeholder="Description" class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-4 py-3 text-xs font-medium outline-none focus:border-[#3D1E28]">
         </div>
-<<<<<<< HEAD
 
-        
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
         <div class="md:col-span-3">
             <input type="number" step="any" id="entryAmount" required placeholder="Amount" class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-4 py-3 text-xs font-medium outline-none focus:border-[#3D1E28]">
         </div>
-<<<<<<< HEAD
 
-        
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
         <div class="md:col-span-3 relative">
             <select id="entryCategory" class="w-full appearance-none bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-4 py-3 pr-8 text-xs font-medium text-[#4A3B40] outline-none focus:border-[#3D1E28] cursor-pointer">
-<<<<<<< HEAD
-                
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
             </select>
             <i class="fa-solid fa-chevron-down text-[10px] text-[#A39296] absolute right-4 top-3.5 pointer-events-none"></i>
         </div>
 
-<<<<<<< HEAD
-        
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
         <div class="md:col-span-2">
             <input type="date" id="entryDate" required class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-3 py-3 text-xs font-medium outline-none focus:border-[#3D1E28]">
         </div>
 
-<<<<<<< HEAD
-        
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
         <input type="file" id="receiptFileInput" accept="image/*" class="hidden" onchange="handleReceiptUpload(event)">
 
-<<<<<<< HEAD
-        
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
         <div class="md:col-span-12 pt-2 flex flex-wrap items-center gap-3">
             <button type="submit" class="bg-[#3D1E28] text-white hover:bg-[#2B1B22] px-6 py-3 rounded-2xl text-xs font-semibold transition shadow-sm">
                 Add entry
             </button>
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
             <button type="button" onclick="triggerReceiptScan()" class="bg-[#F5EFF2] text-[#3D1E28] hover:bg-[#EBE4E5] px-6 py-3 rounded-2xl text-xs font-semibold transition shadow-sm flex items-center gap-2">
                 <i class="fa-solid fa-file-arrow-up text-xs"></i>
                 <span>Upload Bill</span>
             </button>
 
-<<<<<<< HEAD
-    
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
             <button type="button" onclick="openCameraModal()" id="btnScan" class="bg-[#8E79B4] text-white hover:bg-[#7B66A1] px-6 py-3 rounded-2xl text-xs font-semibold transition shadow-sm flex items-center gap-2">
                 <i class="fa-solid fa-camera text-xs"></i>
                 <span>AI Scan Bill</span>
             </button>
         </div>
     </form>
-<<<<<<< HEAD
-=======
 
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
     <div id="scanStatusBox" class="hidden mt-4 p-4 rounded-2xl bg-[#F5EFF2] border border-[#EBE4E5] text-xs font-medium text-[#3D1E28] flex items-center gap-3">
         <i class="fa-solid fa-circle-notch fa-spin text-sm text-[#8E79B4]"></i>
         <span id="scanStatusText">Scanning bill & categorizing with Groq AI...</span>
     </div>
 </div>
-
-<<<<<<< HEAD
-
-=======
 
 <div class="bg-white border border-[#F0EAEB] rounded-3xl p-8 shadow-sm mb-8">
     <div class="flex items-center justify-between mb-6">
@@ -162,7 +104,6 @@
         </div>
     </div>
 
-    
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 my-6">
         <div class="bg-[#FAF8F8] rounded-2xl p-4 text-center">
             <span class="text-[10px] font-bold tracking-widest text-[#A39296] uppercase">NEEDS</span>
@@ -176,7 +117,6 @@
         </div>
     </div>
 
-    
     <div class="border-t border-[#F0EAEB] pt-4 text-xs">
         <div class="grid grid-cols-12 text-[#A39296] font-bold tracking-wider uppercase mb-3 px-2">
             <div class="col-span-4">Category</div>
@@ -230,13 +170,7 @@
     <div id="trendChartSubtitle" class="text-center text-xs text-[#8C7A7E] mt-4 font-medium">Total spend per month this year</div>
 </div>
 
-
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
 <div class="bg-white border border-[#F0EAEB] rounded-3xl shadow-sm overflow-hidden mb-12">
-<<<<<<< HEAD
-    
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
     <div class="flex items-center justify-between p-6 border-b border-[#F0EAEB]">
         <h3 class="text-sm font-bold tracking-[0.1em] text-[#3D1E28] uppercase">Transactions</h3>
         
@@ -247,27 +181,12 @@
         </div>
     </div>
 
-<<<<<<< HEAD
-    
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
     <div id="transactionList" class="divide-y divide-[#F0EAEB]">
-    
     </div>
 </div>
 
-<<<<<<< HEAD
-
-=======
-
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
 <div id="cameraModal" class="hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
     <div class="bg-white rounded-3xl p-5 max-w-md w-full shadow-2xl flex flex-col max-h-[90vh] space-y-4">
-<<<<<<< HEAD
-        
-        
-=======
->>>>>>> 2196494a221738cdeacbd5924d0e6a6738d98360
         <div class="flex justify-between items-center shrink-0">
             <h3 class="text-sm font-bold tracking-wider text-[#3D1E28] uppercase">Scan Bill with Camera</h3>
             <button type="button" onclick="closeCameraModal()" class="text-[#A39296] hover:text-[#3D1E28] text-lg font-bold">&times;</button>
@@ -319,7 +238,6 @@
     let donutChartInstance = null;
     let barChartInstance = null;
 
-    // Helper: Safely parse local YYYY-MM-DD date without UTC timezone offsets
     function parseLocalDate(dateStr) {
         if (!dateStr) return new Date();
         const parts = dateStr.split('-');
@@ -329,7 +247,6 @@
         return new Date(dateStr);
     }
 
-    // Default Transactions for current year (2026)
     const defaultTransactions = [
         { id: 11, desc: 'kfc', amount: 1500, type: 'EXPENSE', category: 'Food', date: '2026-08-03' },
         { id: 1, desc: 'Online course', amount: 150, type: 'EXPENSE', category: 'Education', date: '2026-07-22' },
@@ -488,7 +405,6 @@
         document.getElementById('tableWantsPct').innerText = wantsPct + '%';
         document.getElementById('barWants').style.width = wantsPct + '%';
 
-        
         const ctxDonut = document.getElementById('needsWantsChart').getContext('2d');
         if (donutChartInstance) donutChartInstance.destroy();
 
@@ -512,7 +428,6 @@
             }
         });
 
-        
         const timeframeEl = document.getElementById('trendTimeframe');
         const timeframe = timeframeEl ? timeframeEl.value : 'monthly';
         const subtitleEl = document.getElementById('trendChartSubtitle');
@@ -538,7 +453,6 @@
             labels = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
             trendTotals = new Array(7).fill(0);
 
-            
             const today = new Date();
             const startOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() - today.getDay());
             const endOfWeek = new Date(today.getFullYear(), today.getMonth(), today.getDate() + (6 - today.getDay()), 23, 59, 59);
@@ -735,114 +649,7 @@
             if (scanStatusBox) scanStatusBox.classList.add('hidden');
         } finally {
             if (btnScan) btnScan.disabled = false;
-            event.target.value = '';
         }
-    }
-
-    async function openCameraModal() {
-        const modal = document.getElementById('cameraModal');
-        const video = document.getElementById('webcamVideo');
-
-        if (!modal || !video) return;
-
-        try {
-            mediaStream = await navigator.mediaDevices.getUserMedia({
-                video: { facingMode: 'environment' }
-            });
-            video.srcObject = mediaStream;
-            modal.classList.remove('hidden');
-        } catch (err) {
-            console.error("Camera access error:", err);
-            alert("Unable to access camera. Please make sure your browser has permission to access your webcam/camera.");
-        }
-    }
-
-    function closeCameraModal() {
-        const modal = document.getElementById('cameraModal');
-        if (mediaStream) {
-            mediaStream.getTracks().forEach(track => track.stop());
-            mediaStream = null;
-        }
-        if (modal) modal.classList.add('hidden');
-    }
-
-    async function captureAndProcess() {
-        const video = document.getElementById('webcamVideo');
-        const canvas = document.getElementById('snapshotCanvas');
-        if (!video || !canvas) return;
-
-        const ctx = canvas.getContext('2d');
-
-        canvas.width = video.videoWidth || 640;
-        canvas.height = video.videoHeight || 480;
-
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        closeCameraModal();
-
-        const btnScan = document.getElementById('btnScan');
-        const scanStatusBox = document.getElementById('scanStatusBox');
-        const scanStatusText = document.getElementById('scanStatusText');
-
-        if (btnScan) btnScan.disabled = true;
-        if (scanStatusBox) scanStatusBox.classList.remove('hidden');
-        if (scanStatusText) scanStatusText.textContent = "Scanning bill & categorizing with Groq AI...";
-
-        canvas.toBlob(async (blob) => {
-            if (!blob) {
-                alert('Failed to capture frame from webcam.');
-                if (btnScan) btnScan.disabled = false;
-                if (scanStatusBox) scanStatusBox.classList.add('hidden');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('receipt_image', blob, 'webcam_capture.jpg');
-
-            try {
-                const response = await fetch('/scan-receipt', {
-                    method: 'POST',
-                    body: formData
-                });
-
-                const data = await response.json();
-
-                if (response.ok && data.success) {
-                    const todayStr = new Date().toISOString().split('T')[0];
-                    data.items.forEach(item => {
-                        transactions.unshift({
-                            id: Date.now() + Math.random(),
-                            desc: item.description,
-                            amount: Math.abs(parseFloat(item.amount)),
-                            type: 'EXPENSE',
-                            category: expenseCategories.includes(item.category) ? item.category : 'Other',
-                            date: item.date || todayStr
-                        });
-                    });
-
-                    if (scanStatusText) {
-                        scanStatusText.textContent = `Success! Parsed and added ${data.items.length} entries.`;
-                    }
-
-                    updateSummaryAndStorage();
-                    renderTransactions();
-                    renderCharts();
-
-                    setTimeout(() => {
-                        if (scanStatusBox) scanStatusBox.classList.add('hidden');
-                    }, 3000);
-                } else {
-                    alert(data.error || 'Failed to scan receipt image.');
-                    if (scanStatusBox) scanStatusBox.classList.add('hidden');
-                }
-            } catch (err) {
-                console.error('Scan Error:', err);
-                alert('An error occurred while uploading/scanning the bill.');
-                if (scanStatusBox) scanStatusBox.classList.add('hidden');
-            } finally {
-                if (btnScan) btnScan.disabled = false;
-            }
-        }, 'image/jpeg', 0.9);
     }
 
     document.addEventListener('DOMContentLoaded', initPage);

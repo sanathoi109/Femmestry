@@ -3,34 +3,102 @@
 
 {% block content %}
 
-<div class="flex justify-between items-start mb-8">
+<!-- HEADER SECTION -->
+<div class="flex flex-col lg:flex-row justify-start items-start lg:items-center gap-8 lg:gap-14 mb-8">
+    <!-- LEFT: TITLE & SUBTEXT -->
     <div>
         <span class="text-xs font-bold tracking-[0.15em] text-[#A39296] uppercase">OVERVIEW</span>
         <h2 class="text-4xl font-bold text-[#2B1B22] font-serif-display mt-2">Your money, at a glance</h2>
-        <p class="text-sm text-[#8C7A7E] mt-2">July 2026 — the numbers that decide your choices, in one calm place.</p>
+        <p class="text-sm text-[#8C7A7E] mt-1">July 2026 — the numbers that decide your choices, in one calm place.</p>
     </div>
 
-    <div class="flex items-center gap-3">
+    <!-- CENTER-RIGHT: CONFIDENCE GARDEN & CONTROLS -->
+    <div class="flex flex-col items-start gap-3.5">
         
-        <button onclick="openEditModal()" class="flex items-center gap-2 bg-[#3D1E28] text-white hover:bg-[#2B1B22] rounded-full px-4 py-2 text-xs font-semibold shadow-sm transition">
-            <i class="fa-solid fa-pen text-[11px]"></i>
-            <span>Edit Values</span>
-        </button>
+        <!-- TOP ROW: CONFIDENCE GARDEN CARD -->
+        <div class="bg-white border border-[#F0EAEB] rounded-2xl px-5 py-3.5 shadow-sm flex flex-col justify-center min-w-[320px]">
+            <div class="flex items-center justify-between mb-1.5">
+                <div class="flex items-center gap-2">
+                    <span id="plantIcon" class="text-sm">🌱</span>
+                    <span class="text-sm font-semibold text-[#2B1B22] font-serif-display">Confidence garden · <span id="confidencePercent">26%</span></span>
+                </div>
+            </div>
+            
+            <!-- Green Gradient Progress Bar -->
+            <div class="w-full bg-[#F2F5F0] h-2 rounded-full overflow-hidden mb-2.5">
+                <div id="confidenceBar" class="bg-gradient-to-r from-emerald-500 to-green-600 h-full rounded-full transition-all duration-500" style="width: 26%;"></div>
+            </div>
 
+            <!-- Action Chips -->
+            <div class="flex items-center gap-1.5 text-xs font-medium text-[#736368]">
+                <button onclick="scrollToInsights()" id="chipInsight" class="bg-white hover:bg-[#FAF8F8] text-[#4A3B40] border border-[#EBE4E5] px-2.5 py-1 rounded-full transition whitespace-nowrap">
+                    +5 Read insight
+                </button>
+                <a href="{{ url_for('coach') }}" class="bg-white hover:bg-[#FAF8F8] text-[#4A3B40] border border-[#EBE4E5] px-2.5 py-1 rounded-full transition whitespace-nowrap">
+                    +3 Ask coach
+                </a>
+                <a href="{{ url_for('quiz') }}" class="bg-white hover:bg-[#FAF8F8] text-[#4A3B40] border border-[#EBE4E5] px-2.5 py-1 rounded-full transition whitespace-nowrap">
+                    +5 Quiz
+                </a>
+            </div>
+        </div>
+
+        <!-- BOTTOM ROW: CURRENCY SELECTOR & EDIT VALUES ALIGNED BELOW THE CARD -->
+        <div class="flex items-center gap-3">
+            <!-- CURRENCY SELECTOR -->
+            <div class="relative">
+                <select id="currencySelect" onchange="updateCurrency()" class="appearance-none bg-white border border-[#EBE4E5] rounded-full px-4 py-2.5 pr-8 text-xs font-semibold text-[#4A3B40] shadow-sm cursor-pointer outline-none focus:border-[#3D1E28]">
+                    <option value="INR" selected>₹ INR</option>
+                    <option value="USD">$ USD</option>
+                    <option value="EUR">€ EUR</option>
+                    <option value="GBP">£ GBP</option>
+                </select>
+                <i class="fa-solid fa-chevron-down text-[10px] text-[#A39296] absolute right-3 top-3.5 pointer-events-none"></i>
+            </div>
+
+            <!-- EDIT VALUES BUTTON -->
+            <button onclick="openEditModal()" class="flex items-center gap-2 bg-[#3D1E28] text-white hover:bg-[#2B1B22] rounded-full px-5 py-2.5 text-xs font-semibold shadow-sm transition whitespace-nowrap">
+                <i class="fa-solid fa-pen text-xs"></i>
+                <span>Edit Values</span>
+            </button>
+        </div>
+
+    </div>
+</div>
+
+<!-- TODAY'S INSIGHT CARD -->
+<div id="insightSection" class="bg-white border border-[#F0EAEB] rounded-3xl p-6 mb-8 shadow-sm transition-all">
+    <div class="flex items-center justify-between gap-4">
+        <div class="flex items-center gap-2">
+            <span class="bg-[#F5EFF2] text-[#3D1E28] text-[10px] font-bold tracking-[0.1em] uppercase px-3 py-1 rounded-full">
+                TODAY'S INSIGHT
+            </span>
+            <span id="insightCategory" class="text-xs text-[#8C7A7E] font-medium">• Mindset</span>
+        </div>
         
-        <div class="relative">
-            <select id="currencySelect" onchange="updateCurrency()" class="appearance-none bg-white border border-[#EBE4E5] rounded-full px-4 py-2 pr-8 text-xs font-semibold text-[#4A3B40] shadow-sm cursor-pointer outline-none focus:border-[#3D1E28]">
-                <option value="INR" selected>₹ INR</option>
-                <option value="USD">$ USD</option>
-                <option value="EUR">€ EUR</option>
-                <option value="GBP">£ GBP</option>
-            </select>
-            <i class="fa-solid fa-chevron-down text-[10px] text-[#A39296] absolute right-3 top-3 pointer-events-none"></i>
+        <button onclick="toggleInsightDetails()" class="text-xs font-bold text-[#3D1E28] hover:text-[#2B1B22] flex items-center gap-1.5 transition">
+            <span id="insightBtnText">Read breakdown (+5%)</span>
+            <i id="insightChevron" class="fa-solid fa-chevron-down text-[10px] transition-transform"></i>
+        </button>
+    </div>
+
+    <h3 id="insightTitle" class="text-lg font-bold text-[#2B1B22] font-serif-display mt-3">
+        Loading today's financial wisdom...
+    </h3>
+    <p id="insightPreview" class="text-xs text-[#8C7A7E] mt-1 leading-relaxed">
+        ...
+    </p>
+
+    <!-- Collapsible Detailed Dropdown -->
+    <div id="insightDetails" class="hidden mt-4 pt-4 border-t border-[#F0EAEB] text-xs text-[#4A3B40] space-y-3">
+        <p id="insightFullText" class="leading-relaxed"></p>
+        <div class="bg-[#FAF8F8] rounded-2xl p-4 border border-[#EBE4E5] text-[#3D1E28]">
+            <strong class="font-bold">💡 Practical Action:</strong> <span id="insightAction"></span>
         </div>
     </div>
 </div>
 
-
+<!-- FINANCIAL CARDS GRID -->
 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-5 mb-8">
     <div class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm">
         <span class="text-[11px] font-bold tracking-[0.15em] text-[#A39296] uppercase">INCOME</span>
@@ -57,10 +125,10 @@
     </div>
 </div>
 
-
+<!-- CHARTS & SECONDARY METRICS GRID -->
 <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
 
-    
+    <!-- WHERE IT WENT (DONUT CHART) -->
     <div class="lg:col-span-5 bg-white border border-[#F0EAEB] rounded-3xl p-7 shadow-sm flex flex-col justify-between">
         <div>
             <span class="text-[11px] font-bold tracking-[0.15em] text-[#A39296] uppercase block mb-6">WHERE IT WENT</span>
@@ -116,10 +184,11 @@
         </div>
     </div>
 
-    
+    <!-- SAFETY NET, STREAK, AND LEARNING HUB -->
     <div class="lg:col-span-7 space-y-6">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
             
+            <!-- SAFETY NET -->
             <div class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
                 <div>
                     <span class="text-[11px] font-bold tracking-[0.15em] text-[#A39296] uppercase">SAFETY NET</span>
@@ -136,7 +205,7 @@
                 </div>
             </div>
 
-            
+            <!-- LOGIN STREAK -->
             <div class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
                 <div>
                     <span class="text-[11px] font-bold tracking-[0.15em] text-[#A39296] uppercase">LOGIN STREAK</span>
@@ -158,6 +227,7 @@
             </div>
         </div>
 
+        <!-- LEARNING HUB -->
         <div class="bg-white border border-[#F0EAEB] rounded-3xl p-7 shadow-sm">
             <span class="text-[11px] font-bold tracking-[0.15em] text-[#A39296] uppercase">LEARNING HUB</span>
             <div class="text-3xl font-bold text-[#3D1E28] font-serif-display mt-3">0</div>
@@ -176,7 +246,7 @@
     </div>
 </div>
 
-
+<!-- EDIT FINANCIALS MODAL -->
 <div id="editModal" class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden flex items-center justify-center z-50">
     <div class="bg-white rounded-3xl p-8 w-full max-w-md border border-[#F0EAEB] shadow-xl">
         <h3 class="text-2xl font-bold text-[#3D1E28] font-serif-display mb-1">Set Your Finances</h3>
@@ -212,7 +282,7 @@
 <script>
     const symbols = { 'INR': '₹', 'USD': '$', 'EUR': '€', 'GBP': '£' };
 
-    
+    // 1. FINANCIAL DASHBOARD STATE
     let finData = JSON.parse(localStorage.getItem('herworth_finances')) || {
         income: 7100,
         expenses: 3484,
@@ -227,17 +297,14 @@
         document.getElementById('displaySavings').innerText = Number(finData.savings).toLocaleString();
         document.getElementById('displayPortfolio').innerText = Number(finData.portfolio).toLocaleString();
 
-
         const months = finData.expenses > 0 ? (finData.savings / finData.expenses).toFixed(1) : 0;
         document.getElementById('safetyMonths').innerText = months;
         document.getElementById('safetySavingsText').innerText = Number(finData.savings).toLocaleString();
         document.getElementById('safetyExpText').innerText = Number(finData.expenses).toLocaleString();
         
-        
         const targetPercent = Math.min((months / 6) * 100, 100);
         document.getElementById('safetyBar').style.width = targetPercent + '%';
 
-        
         document.getElementById('currencySelect').value = finData.currency;
         updateCurrencySymbols(finData.currency);
     }
@@ -278,7 +345,110 @@
         closeEditModal();
     }
 
-    
+    // 2. DAILY INSIGHTS POOL
+    const dailyInsightsPool = [
+        {
+            category: "Mindset",
+            title: "Financial confidence isn't about knowing everything — it's about starting.",
+            preview: "You don't need a finance degree to make smart money choices. Small, regular actions build long-term independence.",
+            fullText: "Women often wait until they feel 100% ready before making investment choices. Financial clarity comes through action, not endless research. Start with a simple auto-save or tracking your daily habits.",
+            action: "Review one expense from yesterday and log it in your budget tab."
+        },
+        {
+            category: "Investing",
+            title: "Inflation quietly reduces cash value over time. Make your savings work.",
+            preview: "Keeping all savings in a basic savings account loses purchasing power every year due to inflation.",
+            fullText: "While keeping an emergency fund liquid is essential, long-term wealth requires investments like Mutual Funds or SIPs that beat average inflation (5-6%). Small monthly investments compound significantly over 5 to 10 years.",
+            action: "Learn about low-risk index funds or SIP options in the Learn tab today."
+        },
+        {
+            category: "Emergency Fund",
+            title: "Your safety net is your ultimate freedom and peace-of-mind buffer.",
+            preview: "A 3-6 month safety net gives you freedom of choice, career flexibility, and anxiety reduction.",
+            fullText: "An emergency fund isn't just money sitting idle; it's freedom. It lets you exit toxic situations, pivot careers, or deal with sudden emergencies without relying on debt.",
+            action: "Check your Safety Net meter above and aim to consistently add toward your 6-month target."
+        },
+        {
+            category: "Smart Spending",
+            title: "Differentiate between 'Price' and 'Value'.",
+            preview: "Cheaper isn't always better, and expensive isn't always worth it. Focus on value to your life.",
+            fullText: "Before making a non-essential purchase, convert the cost into hours worked. Ask yourself: 'Is this item worth X hours of my effort?' This simple mind shift stops impulse buying effortlessly.",
+            action: "Practice the 24-hour waiting rule before buying any non-essential item over ₹1,000."
+        },
+        {
+            category: "Career & Growth",
+            title: "Negotiating your compensation is an investment in your future compounding.",
+            preview: "Your primary wealth builder is your active earning potential. Never feel hesitant to advocate for your worth.",
+            fullText: "A small raise negotiated today compounds into tens of thousands in higher savings, pensions, and employer matches over a decade. Keep a weekly log of your achievements so you are always prepared.",
+            action: "Write down 3 key achievements or completed milestones from your past month."
+        }
+    ];
+
+    // 3. CONFIDENCE GARDEN & INSIGHT STATE
+    let currentScore = parseInt(localStorage.getItem('herworth_confidence_score')) || 26;
+    let insightReadToday = localStorage.getItem('herworth_insight_read_date') === new Date().toDateString();
+
+    function initDailyInsight() {
+        const today = new Date();
+        const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24));
+        const selectedInsight = dailyInsightsPool[dayOfYear % dailyInsightsPool.length];
+
+        document.getElementById('insightCategory').innerText = "• " + selectedInsight.category;
+        document.getElementById('insightTitle').innerText = selectedInsight.title;
+        document.getElementById('insightPreview').innerText = selectedInsight.preview;
+        document.getElementById('insightFullText').innerText = selectedInsight.fullText;
+        document.getElementById('insightAction').innerText = selectedInsight.action;
+
+        if (insightReadToday) {
+            document.getElementById('insightBtnText').innerText = "View breakdown (Completed)";
+            document.getElementById('chipInsight').classList.add('opacity-50');
+        }
+    }
+
+    function updateConfidenceUI() {
+        currentScore = Math.min(Math.max(currentScore, 0), 100);
+        localStorage.setItem('herworth_confidence_score', currentScore);
+
+        document.getElementById('confidencePercent').innerText = currentScore + '%';
+        document.getElementById('confidenceBar').style.width = currentScore + '%';
+
+        // Plant Stage Emoji
+        const plantIcon = document.getElementById('plantIcon');
+        if (currentScore < 25) plantIcon.innerText = '🌱';
+        else if (currentScore < 50) plantIcon.innerText = '🌿';
+        else if (currentScore < 75) plantIcon.innerText = '🪴';
+        else plantIcon.innerText = '🌻';
+    }
+
+    function toggleInsightDetails() {
+        const detailsDiv = document.getElementById('insightDetails');
+        const chevron = document.getElementById('insightChevron');
+        const isHidden = detailsDiv.classList.contains('hidden');
+
+        if (isHidden) {
+            detailsDiv.classList.remove('hidden');
+            chevron.classList.add('rotate-180');
+
+            if (!insightReadToday) {
+                currentScore += 5;
+                insightReadToday = true;
+                localStorage.setItem('herworth_insight_read_date', new Date().toDateString());
+                document.getElementById('insightBtnText').innerText = "View breakdown (Completed)";
+                document.getElementById('chipInsight').classList.add('opacity-50');
+                updateConfidenceUI();
+            }
+        } else {
+            detailsDiv.classList.add('hidden');
+            chevron.classList.remove('rotate-180');
+        }
+    }
+
+    function scrollToInsights() {
+        document.getElementById('insightSection').scrollIntoView({ behavior: 'smooth' });
+        toggleInsightDetails();
+    }
+
+    // 4. CHART.JS EXPENSE DONUT
     const ctx = document.getElementById('expenseChart').getContext('2d');
     new Chart(ctx, {
         type: 'doughnut',
@@ -298,7 +468,10 @@
         }
     });
 
-
+    // INITIALIZE ALL
     renderDashboard();
+    initDailyInsight();
+    updateConfidenceUI();
 </script>
+
 {% endblock %}
