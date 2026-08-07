@@ -374,6 +374,97 @@ Return strictly a valid JSON object with EXACTLY these key names:
     return jsonify({"success": False, "error": str(e)}), 500
 
 
+@app.route("/api/coach/schemes", methods=["POST"])
+def discover_schemes():
+  try:
+    data = request.json or {}
+    user_age = int(data.get("age", 21))
+    category = data.get("category", "All")
+
+    query_text = (
+        f"Government financial schemes for women in India age {user_age}"
+        f" category {category}"
+    )
+
+    retrieved_docs = []
+    try:
+      results = collection.query(query_texts=[query_text], n_results=4)
+      if results and results.get("documents") and results["documents"][0]:
+        retrieved_docs = results["documents"][0]
+    except Exception as chroma_err:
+      print("ChromaDB query warning in schemes:", chroma_err)
+
+    context_text = (
+        "\n---\n".join(retrieved_docs)
+        if retrieved_docs
+        else "Official government schemes database for Indian women."
+    )
+
+    prompt = f"""
+You are an expert advisor on Indian Government and RBI financial schemes for women.
+Analyze the user's profile and retrieve matching schemes from official context.
+
+USER PROFILE:
+- Age: {user_age} years old
+- Goal Category: {category}
+
+OFFICIAL SCHEME KNOWLEDGE BASE CONTEXT:
+{context_text}
+
+Instructions:
+1. Filter and identify schemes for which an Indian woman aged {user_age} is strictly eligible.
+2. If category is not "All", restrict matches to that goal category (e.g. Savings or Entrepreneurship).
+3. Return strictly a JSON object containing an array called "schemes".
+
+Return structure MUST be exactly:
+{{
+  "schemes": [
+    {{
+      "title": "Exact Scheme Name",
+      "category": "Savings or Entrepreneurship",
+      "benefit": "Core financial return or loan details",
+      "criteria": "Specific eligibility conditions and age bounds",
+      "deadline": "Application timelines or operational guidelines",
+      "portal": "Official government website URL",
+      "tag": "Short badge e.g. Govt Guaranteed or Micro Finance"
+    }}
+  ]
+}}
+"""
+
+    completion = groq_client.chat.completions.create(
+        model=TEXT_MODEL,
+        messages=[
+            {
+                "role": "system",
+                "content": (
+                    "You are a precise government scheme analyzer. Output ONLY"
+                    " JSON."
+                ),
+            },
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0.1,
+        response_format={"type": "json_object"},
+    )
+
+    raw_content = completion.choices[0].message.content.strip()
+    parsed_result = json.loads(raw_content)
+
+    return jsonify({
+        "success": True,
+        "schemes": parsed_result.get("schemes", []),
+        "sources": [
+            "RBI & Ministry of Finance Knowledge Base",
+            f"Filtered for Age {user_age}",
+        ],
+    })
+
+  except Exception as e:
+    print(f"Error in /api/coach/schemes: {e}")
+    return jsonify({"success": False, "error": str(e)}), 500
+
+
 @app.route("/debug-routes")
 def debug_routes():
   lines = []

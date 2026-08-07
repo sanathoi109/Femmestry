@@ -1,18 +1,18 @@
 {% extends "base.html" %}
-{% block title %}HERWORTH - Coach{% endblock %}
+{% block title %}HERWEALTH - Coach{% endblock %}
 
 {% block content %}
 <!-- Top Header Banner -->
 <div class="mb-8">
     <span class="text-xs font-bold tracking-[0.15em] text-[#A39296] uppercase">YOUR AI MONEY COACH</span>
-    <h2 class="text-4xl font-bold text-[#2B1B22] font-serif-display mt-2">Ask anything, or decode the news</h2>
+    <h2 class="text-4xl font-bold text-[#2B1B22] font-serif-display mt-2">Ask anything, decode news, or find schemes</h2>
     <p class="text-sm text-[#8C7A7E] mt-2">
-        Plain-English answers grounded in financial basics, tailored to your goal.
+        Plain-English answers, simplified news, and curated financial schemes for women in India.
     </p>
 </div>
 
 <!-- Sub-Tab Controls -->
-<div class="flex gap-3 mb-6">
+<div class="flex flex-wrap gap-3 mb-6">
     <button id="tabBtnChat" onclick="switchCoachTab('chat')" 
         class="px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white flex items-center gap-2">
         <i class="fa-regular fa-comments"></i>
@@ -20,42 +20,45 @@
     </button>
     <button id="tabBtnTranslate" onclick="switchCoachTab('translate')" 
         class="px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28] flex items-center gap-2">
-        <i class="fa-solid fa-[#3D1E28] fa-language"></i>
+        <i class="fa-solid fa-language text-xs"></i>
         <span>Translate News</span>
+    </button>
+    <button id="tabBtnSchemes" onclick="switchCoachTab('schemes')" 
+        class="px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28] flex items-center gap-2">
+        <i class="fa-solid fa-building-columns text-xs"></i>
+        <span>Schemes Finder</span>
     </button>
 </div>
 
 <!-- ==================== VIEW 1: CHAT MODE ==================== -->
 <div id="viewChat" class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm flex flex-col justify-between min-h-[500px]">
-    <!-- Messages Container -->
     <div id="chatMessages" class="space-y-4 mb-6 max-h-[420px] overflow-y-auto pr-2">
         <div class="bg-[#FAF8F8] border border-[#EBE4E5] p-4 rounded-2xl max-w-xl text-xs text-[#2B1B22] leading-relaxed">
             Hi! Ask me anything about money — no question is too basic. I'll give you clear answers with upsides and risks included.
         </div>
     </div>
 
-    <!-- Quick Prompts & Input Form -->
     <div class="space-y-3 pt-2 border-t border-[#F0EAEB]">
         <div class="flex flex-wrap gap-2">
-            <button onclick="usePrompt('What is the difference between NEFT and IMPS?')" 
+            <button type="button" onclick="usePrompt('What is the difference between NEFT and IMPS?')" 
                 class="px-3 py-1.5 bg-[#FAF8F8] hover:bg-[#F5EFF2] border border-[#EBE4E5] text-[#3D1E28] text-[11px] rounded-full transition">
                 What's the difference between NEFT and IMPS?
             </button>
-            <button onclick="usePrompt('Is an FD better than a SIP for me?')" 
+            <button type="button" onclick="usePrompt('Is an FD better than a SIP for me?')" 
                 class="px-3 py-1.5 bg-[#FAF8F8] hover:bg-[#F5EFF2] border border-[#EBE4E5] text-[#3D1E28] text-[11px] rounded-full transition">
                 Is an FD better than a SIP for me?
             </button>
-            <button onclick="usePrompt('How do I start an emergency fund with ₹1000?')" 
+            <button type="button" onclick="usePrompt('How do I start an emergency fund with ₹1000?')" 
                 class="px-3 py-1.5 bg-[#FAF8F8] hover:bg-[#F5EFF2] border border-[#EBE4E5] text-[#3D1E28] text-[11px] rounded-full transition">
                 How do I start an emergency fund?
             </button>
         </div>
 
-        <form onsubmit="sendChatMessage(event)" class="relative flex items-center">
+        <form id="chatForm" onsubmit="sendChatMessage(event)" class="relative flex items-center">
             <input type="text" id="chatInput" placeholder="Ask your doubt..." required
                 class="w-full bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl pl-4 pr-12 py-3.5 text-xs font-medium outline-none focus:border-[#3D1E28]">
-            <button type="submit" 
-                class="absolute right-2 bg-[#3D1E28] hover:bg-[#2B1B22] text-white w-9 h-9 rounded-xl flex items-center justify-center transition shadow-sm">
+            <button type="submit" id="chatSubmitBtn"
+                class="absolute right-2 bg-[#3D1E28] hover:bg-[#2B1B22] text-white w-9 h-9 rounded-xl flex items-center justify-center transition shadow-sm disabled:opacity-50">
                 <i class="fa-solid fa-paper-plane text-xs"></i>
             </button>
         </form>
@@ -64,7 +67,6 @@
 
 <!-- ==================== VIEW 2: TRANSLATE MODE ==================== -->
 <div id="viewTranslate" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
-    <!-- Left Input Column -->
     <div class="lg:col-span-5 bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm flex flex-col justify-between">
         <div>
             <span class="text-[10px] font-bold tracking-[0.15em] text-[#A39296] uppercase">HEADLINE OR STORY</span>
@@ -73,15 +75,15 @@
 
             <span class="text-[10px] font-bold tracking-[0.15em] text-[#A39296] uppercase mt-5 block">EXPLAIN IT FOR...</span>
             <div class="flex flex-wrap gap-2 mt-2" id="personaContainer">
-                <button type="button" onclick="selectPersona(this, 'Explain like I\'m 18')" 
+                <button type="button" onclick="selectPersona(this, 'Explain like I am 18')" 
                     class="persona-btn px-4 py-2 rounded-full text-xs font-semibold bg-[#FAF8F8] text-[#8C7A7E] border border-[#EBE4E5]">
                     Explain like I'm 18
                 </button>
-                <button type="button" onclick="selectPersona(this, 'I\'m new to investing')" 
+                <button type="button" onclick="selectPersona(this, 'I am new to investing')" 
                     class="persona-btn active-persona px-4 py-2 rounded-full text-xs font-semibold bg-[#3D1E28] text-white border border-[#3D1E28]">
                     I'm new to investing
                 </button>
-                <button type="button" onclick="selectPersona(this, 'I\'m building wealth')" 
+                <button type="button" onclick="selectPersona(this, 'I am building wealth')" 
                     class="persona-btn px-4 py-2 rounded-full text-xs font-semibold bg-[#FAF8F8] text-[#8C7A7E] border border-[#EBE4E5]">
                     I'm building wealth
                 </button>
@@ -89,20 +91,18 @@
         </div>
 
         <button type="button" onclick="translateNews()" id="btnTranslate" 
-            class="w-full mt-6 bg-[#3D1E28] hover:bg-[#2B1B22] text-white py-3.5 rounded-2xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-sm">
+            class="w-full mt-6 bg-[#3D1E28] hover:bg-[#2B1B22] text-white py-3.5 rounded-2xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-sm disabled:opacity-50">
             <i class="fa-solid fa-wand-magic-sparkles"></i>
             <span>Translate with AI</span>
         </button>
     </div>
 
-    <!-- Right Output Column -->
     <div class="lg:col-span-7 bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm min-h-[420px] flex flex-col justify-between">
         <div id="translateEmptyState" class="h-full flex flex-col items-center justify-center text-center py-12">
             <i class="fa-solid fa-newspaper text-3xl text-[#A39296] mb-3"></i>
             <p class="text-xs font-semibold text-[#8C7A7E]">Enter a headline on the left and click "Translate with AI" to generate a simple breakdown.</p>
         </div>
 
-        <!-- Populated Output State -->
         <div id="translateResult" class="hidden space-y-4 text-xs text-[#2B1B22]">
             <div>
                 <span id="badgePersona" class="bg-[#F5EFF2] text-[#3D1E28] text-[10px] font-bold px-3 py-1 rounded-full uppercase tracking-wider">
@@ -130,36 +130,151 @@
                 <p id="outWatch" class="mt-1 text-[#4A3B40] leading-relaxed"></p>
             </div>
 
-            <!-- RAG Sources Bar -->
             <div class="pt-4 border-t border-[#F0EAEB] flex flex-wrap items-center gap-2">
                 <span class="text-[10px] font-bold text-[#A39296] uppercase tracking-wider">RAG:</span>
                 <div id="ragPills" class="flex flex-wrap gap-1.5">
-                    <!-- Dynamic Pills -->
                 </div>
             </div>
         </div>
     </div>
 </div>
 
+<!-- ==================== VIEW 3: SCHEMES FINDER ==================== -->
+<div id="viewSchemes" class="hidden grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="lg:col-span-4 bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm flex flex-col justify-between h-fit">
+        <div>
+            <span class="text-[10px] font-bold tracking-[0.15em] text-[#A39296] uppercase">ELIGIBILITY FILTER</span>
+            
+            <div class="mt-4">
+                <label for="schemeAge" class="text-xs font-semibold text-[#3D1E28]">Your Age (Years)</label>
+                <input type="number" id="schemeAge" value="21" min="1" max="100"
+                    class="w-full mt-1.5 bg-[#FAF8F8] border border-[#EBE4E5] rounded-2xl px-4 py-3 text-xs font-bold text-[#2B1B22] outline-none focus:border-[#3D1E28]">
+            </div>
+
+            <div class="mt-5">
+                <label class="text-xs font-semibold text-[#3D1E28]">Primary Goal / Category</label>
+                <div class="flex flex-col gap-2 mt-2" id="schemeCategoryContainer">
+                    <button type="button" onclick="selectSchemeCat(this, 'All')" 
+                        class="scheme-cat-btn active-cat px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#3D1E28] text-white text-left transition border border-[#3D1E28]">
+                        <i class="fa-solid fa-list-check mr-2"></i>All Matching Schemes
+                    </button>
+                    <button type="button" onclick="selectSchemeCat(this, 'Savings')" 
+                        class="scheme-cat-btn px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#FAF8F8] text-[#8C7A7E] text-left transition border border-[#EBE4E5]">
+                        <i class="fa-solid fa-piggy-bank mr-2"></i>Savings & Deposits
+                    </button>
+                    <button type="button" onclick="selectSchemeCat(this, 'Entrepreneurship')" 
+                        class="scheme-cat-btn px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#FAF8F8] text-[#8C7A7E] text-left transition border border-[#EBE4E5]">
+                        <i class="fa-solid fa-briefcase mr-2"></i>Business & Startups
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <button type="button" onclick="findSchemes()" id="btnFindSchemes" 
+            class="w-full mt-6 bg-[#3D1E28] hover:bg-[#2B1B22] text-white py-3.5 rounded-2xl text-xs font-semibold transition flex items-center justify-center gap-2 shadow-sm">
+            <i class="fa-solid fa-magnifying-glass font-bold"></i>
+            <span>Check Eligible Schemes</span>
+        </button>
+    </div>
+
+    <div class="lg:col-span-8 space-y-4" id="schemesResultContainer">
+        <div class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm min-h-[420px] flex flex-col items-center justify-center text-center">
+            <i class="fa-solid fa-landmark text-3xl text-[#A39296] mb-3"></i>
+            <p class="text-xs font-semibold text-[#8C7A7E]">Enter your age and click "Check Eligible Schemes" to display government initiatives for women in India.</p>
+        </div>
+    </div>
+</div>
+
 <script>
-    let activePersona = "I'm new to investing";
+    let activePersona = "I am new to investing";
+    let activeSchemeCategory = "All";
+
+    const MOCK_SCHEMES_DATABASE = [
+        {
+            title: "Mahila Samman Savings Certificate (MSSC)",
+            category: "Savings",
+            minAge: 18,
+            maxAge: 100,
+            benefit: "Fixed 7.5% p.a. interest rate compounded quarterly.",
+            criteria: "Indian resident woman or girl child (via guardian). Maximum deposit cap of ₹2,00,000.",
+            deadline: "Subject to official bank & post office deposit window guidelines.",
+            portal: "https://www.myscheme.gov.in/schemes/mssc",
+            tag: "Government Guaranteed"
+        },
+        {
+            title: "Stand-Up India Scheme for Women",
+            category: "Entrepreneurship",
+            minAge: 18,
+            maxAge: 70,
+            benefit: "Bank loans between ₹10 Lakhs to ₹1 Crore for setting up a greenfield enterprise.",
+            criteria: "Must be a woman entrepreneur establishing a new venture in manufacturing, services, or trading.",
+            deadline: "Ongoing scheme active through official public & private sector banks.",
+            portal: "https://www.standupmitra.in/",
+            tag: "Business Capital"
+        },
+        {
+            title: "Pradhan Mantri MUDRA Yojana (PMMY)",
+            category: "Entrepreneurship",
+            minAge: 18,
+            maxAge: 65,
+            benefit: "Collateral-free micro loans up to ₹10 Lakhs (Shishu, Kishor, and Tarun categories).",
+            criteria: "Non-farm small business owners, micro-entrepreneurs, and self-employed women.",
+            deadline: "Open year-round across registered commercial & regional banks.",
+            portal: "https://www.mudra.org.in/",
+            tag: "Micro Finance"
+        },
+        {
+            title: "Public Provident Fund (PPF)",
+            category: "Savings",
+            minAge: 18,
+            maxAge: 100,
+            benefit: "7.1% tax-free interest under EEE regime with a 15-year wealth compounding lock-in.",
+            criteria: "Indian adult resident; minimum deposit ₹500/year up to ₹1,50,000/year.",
+            deadline: "Open year-round.",
+            portal: "https://www.indiapost.gov.in/",
+            tag: "Tax Exemption"
+        }
+    ];
+
+    function escapeHTML(str) {
+        if (!str) return '';
+        return String(str)
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#039;');
+    }
 
     function switchCoachTab(tab) {
         const btnChat = document.getElementById('tabBtnChat');
         const btnTrans = document.getElementById('tabBtnTranslate');
+        const btnSchemes = document.getElementById('tabBtnSchemes');
+
         const viewChat = document.getElementById('viewChat');
         const viewTranslate = document.getElementById('viewTranslate');
+        const viewSchemes = document.getElementById('viewSchemes');
+
+        const inactiveBtnClass = "px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28] flex items-center gap-2";
+        const activeBtnClass = "px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white flex items-center gap-2";
+
+        btnChat.className = inactiveBtnClass;
+        btnTrans.className = inactiveBtnClass;
+        btnSchemes.className = inactiveBtnClass;
+
+        viewChat.classList.add('hidden');
+        viewTranslate.classList.add('hidden');
+        viewSchemes.classList.add('hidden');
 
         if (tab === 'chat') {
-            btnChat.className = "px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white flex items-center gap-2";
-            btnTrans.className = "px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28] flex items-center gap-2";
+            btnChat.className = activeBtnClass;
             viewChat.classList.remove('hidden');
-            viewTranslate.classList.add('hidden');
-        } else {
-            btnTrans.className = "px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#3D1E28] text-white flex items-center gap-2";
-            btnChat.className = "px-5 py-2.5 rounded-full text-xs font-bold tracking-wider transition bg-[#F5EFF2] text-[#8C7A7E] hover:text-[#3D1E28] flex items-center gap-2";
+        } else if (tab === 'translate') {
+            btnTrans.className = activeBtnClass;
             viewTranslate.classList.remove('hidden');
-            viewChat.classList.add('hidden');
+        } else if (tab === 'schemes') {
+            btnSchemes.className = activeBtnClass;
+            viewSchemes.classList.remove('hidden');
         }
     }
 
@@ -171,6 +286,14 @@
         activePersona = persona;
     }
 
+    function selectSchemeCat(btn, cat) {
+        document.querySelectorAll('.scheme-cat-btn').forEach(b => {
+            b.className = "scheme-cat-btn px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#FAF8F8] text-[#8C7A7E] text-left transition border border-[#EBE4E5]";
+        });
+        btn.className = "scheme-cat-btn active-cat px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#3D1E28] text-white text-left transition border border-[#3D1E28]";
+        activeSchemeCategory = cat;
+    }
+
     function usePrompt(txt) {
         document.getElementById('chatInput').value = txt;
     }
@@ -178,20 +301,35 @@
     async function sendChatMessage(e) {
         e.preventDefault();
         const input = document.getElementById('chatInput');
+        const submitBtn = document.getElementById('chatSubmitBtn');
         const msg = input.value.trim();
         if (!msg) return;
 
         const box = document.getElementById('chatMessages');
-        box.innerHTML += `
+
+        box.insertAdjacentHTML('beforeend', `
             <div class="flex justify-end">
                 <div class="bg-[#3D1E28] text-white p-4 rounded-2xl max-w-xl text-xs leading-relaxed">
-                    ${msg}
+                    ${escapeHTML(msg)}
                 </div>
             </div>
-        `;
+        `);
 
         input.value = '';
         box.scrollTop = box.scrollHeight;
+
+        const loadingId = 'loading-' + Date.now();
+        box.insertAdjacentHTML('beforeend', `
+            <div id="${loadingId}" class="flex justify-start">
+                <div class="bg-[#FAF8F8] border border-[#EBE4E5] p-4 rounded-2xl max-w-xl text-xs text-[#8C7A7E] leading-relaxed flex items-center gap-2">
+                    <i class="fa-solid fa-circle-notch fa-spin"></i> Thinking...
+                </div>
+            </div>
+        `);
+        box.scrollTop = box.scrollHeight;
+
+        input.disabled = true;
+        submitBtn.disabled = true;
 
         try {
             const res = await fetch('/api/coach/chat', {
@@ -199,18 +337,36 @@
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ prompt: msg })
             });
-            const data = await res.json();
 
-            box.innerHTML += `
+            const data = await res.json();
+            const loadingEl = document.getElementById(loadingId);
+            if (loadingEl) loadingEl.remove();
+
+            const responseText = data.response || 'Sorry, I could not process that request.';
+            box.insertAdjacentHTML('beforeend', `
                 <div class="flex justify-start">
                     <div class="bg-[#FAF8F8] border border-[#EBE4E5] p-4 rounded-2xl max-w-xl text-xs text-[#2B1B22] leading-relaxed">
-                        ${data.response || 'Sorry, I could not process that.'}
+                        ${escapeHTML(responseText)}
                     </div>
                 </div>
-            `;
-            box.scrollTop = box.scrollHeight;
+            `);
         } catch (err) {
             console.error(err);
+            const loadingEl = document.getElementById(loadingId);
+            if (loadingEl) loadingEl.remove();
+
+            box.insertAdjacentHTML('beforeend', `
+                <div class="flex justify-start">
+                    <div class="bg-[#FFF5F5] border border-[#FEB2B2] p-4 rounded-2xl max-w-xl text-xs text-[#C53030] leading-relaxed">
+                        Something went wrong. Please try again.
+                    </div>
+                </div>
+            `);
+        } finally {
+            input.disabled = false;
+            submitBtn.disabled = false;
+            input.focus();
+            box.scrollTop = box.scrollHeight;
         }
     }
 
@@ -220,7 +376,7 @@
 
         const btn = document.getElementById('btnTranslate');
         btn.disabled = true;
-        btn.innerText = 'Translating...';
+        btn.innerHTML = `<i class="fa-solid fa-circle-notch fa-spin"></i> <span>Translating...</span>`;
 
         try {
             const res = await fetch('/api/coach/translate', {
@@ -241,19 +397,68 @@
 
             const ragContainer = document.getElementById('ragPills');
             ragContainer.innerHTML = '';
-            (data.sources || ['Market Basics', 'Chroma Knowledge Base']).forEach(src => {
-                ragContainer.innerHTML += `
-                    <span class="bg-[#FAF8F8] border border-[#EBE4E5] text-[#8C7A7E] text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
-                        ${src}
-                    </span>
-                `;
+            
+            const sources = (data.sources && data.sources.length > 0) ? data.sources : ['Market Basics', 'Chroma Knowledge Base'];
+            sources.forEach(src => {
+                const pill = document.createElement('span');
+                pill.className = "bg-[#FAF8F8] border border-[#EBE4E5] text-[#8C7A7E] text-[10px] font-semibold px-2.5 py-0.5 rounded-full";
+                pill.textContent = src;
+                ragContainer.appendChild(pill);
             });
         } catch (err) {
             console.error(err);
+            alert('Failed to translate news. Please check your server endpoint.');
         } finally {
             btn.disabled = false;
-            btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i><span>Translate with AI</span>`;
+            btn.innerHTML = `<i class="fa-solid fa-wand-magic-sparkles"></i> <span>Translate with AI</span>`;
         }
+    }
+
+    function findSchemes() {
+        const ageInput = parseInt(document.getElementById('schemeAge').value, 10) || 21;
+        const container = document.getElementById('schemesResultContainer');
+
+        const filtered = MOCK_SCHEMES_DATABASE.filter(item => {
+            const ageMatch = ageInput >= item.minAge && ageInput <= item.maxAge;
+            const catMatch = (activeSchemeCategory === 'All') || (item.category === activeSchemeCategory);
+            return ageMatch && catMatch;
+        });
+
+        if (filtered.length === 0) {
+            container.innerHTML = `
+                <div class="bg-white border border-[#F0EAEB] rounded-3xl p-6 text-center">
+                    <p class="text-xs text-[#8C7A7E]">No matching schemes found for age ${ageInput} in this category.</p>
+                </div>
+            `;
+            return;
+        }
+
+        container.innerHTML = filtered.map(item => `
+            <div class="bg-white border border-[#F0EAEB] rounded-3xl p-6 shadow-sm space-y-3 text-xs">
+                <div class="flex items-center justify-between border-b border-[#F0EAEB] pb-3">
+                    <h3 class="font-bold text-[#3D1E28] text-sm">${escapeHTML(item.title)}</h3>
+                    <span class="bg-[#F5EFF2] text-[#3D1E28] text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">${escapeHTML(item.tag)}</span>
+                </div>
+                <div>
+                    <span class="font-bold text-[#3D1E28]">Financial Benefit:</span>
+                    <p class="text-[#4A3B40] mt-0.5">${escapeHTML(item.benefit)}</p>
+                </div>
+                <div>
+                    <span class="font-bold text-[#3D1E28]">Eligibility Criteria:</span>
+                    <p class="text-[#4A3B40] mt-0.5">${escapeHTML(item.criteria)}</p>
+                </div>
+                <div>
+                    <span class="font-bold text-[#3D1E28]">Deadlines & Terms:</span>
+                    <p class="text-[#4A3B40] mt-0.5">${escapeHTML(item.deadline)}</p>
+                </div>
+                <div class="pt-2 flex justify-end">
+                    <a href="${escapeHTML(item.portal)}" target="_blank" rel="noopener noreferrer" 
+                        class="px-4 py-2 bg-[#FAF8F8] hover:bg-[#F5EFF2] border border-[#EBE4E5] text-[#3D1E28] font-bold text-[11px] rounded-xl transition inline-flex items-center gap-1.5">
+                        Official Portal <i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i>
+                    </a>
+                </div>
+            </div>
+        `).join('');
     }
 </script>
 {% endblock %}
